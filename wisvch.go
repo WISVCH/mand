@@ -7,11 +7,12 @@ import (
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
-// TODO: Build open connect login
 // TODO: Build redirect
 // TODO: Build admin pages
+// TODO: Build open connect login
 // TODO: Add environment variables for configuration and file settings for local development
 // TODO: Change functions to return a handlerfunc which takes the db
 // TODO: Move link routes to link file
@@ -57,10 +58,25 @@ func main() {
 }
 
 func redirect(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Rest of the pages.",
-		"route":   c.Request.RequestURI,
-	})
+	path := strings.Split(c.Request.RequestURI[1:], "/")[0]
+
+	var link Link
+	err := db.Model(&Link{}).
+		Where("name = ?", path).
+		Find(&link).
+		Error
+	if err != nil {
+		log.Errorf("unable to retrieve link: '%s', error: %s", c.Request.RequestURI, err.Error())
+		if gorm.IsRecordNotFoundError(err) {
+			// 404 redirect
+			c.String(http.StatusNotFound, "There is no such link present")
+		} else {
+			c.AbortWithStatus(http.StatusInternalServerError)
+		}
+		return
+	}
+
+	c.String(http.StatusOK, "Redirecting to: %s", link.Redirect)
 }
 
 func login(c *gin.Context) {
@@ -69,10 +85,12 @@ func login(c *gin.Context) {
 	})
 }
 
+// get all links, in alphabetical order
 func getAllLink(c *gin.Context) {
 	var links []*Link
 
-	err := db.Order("name").
+	err := db.Model(&Link{}).
+		Order("name").
 		Find(&links).
 		Error
 	if err != nil {
@@ -94,7 +112,8 @@ func createLink(c *gin.Context) {
 	}
 
 	// Create link
-	err = db.Create(&link).
+	err = db.Model(&Link{}).
+		Create(&link).
 		Error
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -141,6 +160,7 @@ func updateLink(c *gin.Context) {
 	})
 }
 
+// delete a link with path parameter ID
 func deleteLink(c *gin.Context) {
 	// Get path param ID
 	id, err := strconv.Atoi(c.Param("ID"))
@@ -150,7 +170,8 @@ func deleteLink(c *gin.Context) {
 	}
 
 	// Delete link on ID
-	err = db.Where("id = ?", id).
+	err = db.Model(&Link{}).
+		Where("id = ?", id).
 		Delete(&Link{}).
 		Error
 	if err != nil {
@@ -158,7 +179,6 @@ func deleteLink(c *gin.Context) {
 		log.Errorf("unable to delete link with id=%d, error: %s", id, err.Error())
 		return
 	}
-
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "link deleted.",
