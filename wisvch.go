@@ -1,23 +1,24 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"github.com/joho/godotenv"
+	"github.com/kelseyhightower/envconfig"
 	log "github.com/sirupsen/logrus"
-	"net/http"
-	"strconv"
-	"strings"
+	"os"
 )
 
-// TODO: Build redirect
+// DONE: Build redirect
 // TODO: Build admin pages
 // TODO: Build open connect login
 // TODO: Add environment variables for configuration and file settings for local development
-// TODO: Change functions to return a handlerfunc which takes the db
-// TODO: Move link routes to link file
-// TODO: Move login logic
-// TODO: Return error on non-existing link update
+// DONE: Change functions to return a handlerfunc which takes the db
+// DONE: Move link routes to link.go
+// DONE: Move login logic to login.go
+// DONE: Return error on non-existing link update
 
 // Link type containing information for the redirect entry
 type Link struct {
@@ -26,18 +27,46 @@ type Link struct {
 	Redirect string `gorm:"not null" json:"redirect" binding:"required"`
 }
 
-var db *gorm.DB
+type App struct {
+	DB     *gorm.DB
+	Config Config
+}
+
+type Config struct {
+	Host        string
+	Port        int
+	DBName      string
+	DBUser      string
+	DBPassword  string
+	NotFoundURL string
+}
 
 func main() {
-	var err error
-	db, err = gorm.Open("postgres", "host=localhost port=5432 user=postgres dbname=wisvch password=postgres sslmode=disable")
+	var wisvch App
+
+	// Bind variables from file to environment for local development
+	_, err := os.Stat("wisvch.env")
+	if !os.IsNotExist(err) {
+		err := godotenv.Load("wisvch.env")
+		if err != nil {
+			log.Fatalf("unable to read .env file, error: %s", err.Error())
+		}
+	}
+
+	// Load environment variables for config
+	err = envconfig.Process("", &wisvch.Config)
+	if err != nil {
+		log.Fatalf("unable to parse environment variables, error: %s", err.Error())
+	}
+
+	wisvch.DB, err = gorm.Open("postgres", fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", wisvch.Config.Host, wisvch.Config.Port, wisvch.Config.DBUser, wisvch.Config.DBPassword, wisvch.Config.DBName))
 	if err != nil {
 		log.Fatalf("unable to connect to database, error: %s", err.Error())
 	}
-	defer db.Close()
+	defer wisvch.DB.Close()
 
 	// Automigrate for possible struct updates
-	db.AutoMigrate(&Link{})
+	wisvch.DB.AutoMigrate(&Link{})
 
 	r := gin.Default()
 	admin := r.Group("/admin")
@@ -47,146 +76,13 @@ func main() {
 
 	link := r.Group("/link")
 	{
-		link.GET("", getAllLink)
-		link.POST("", createLink)
-		link.PATCH("", updateLink)
-		link.DELETE("/:ID", deleteLink)
+		link.GET("", getAllLink(wisvch))
+		link.POST("", createLink(wisvch))
+		link.PATCH("", updateLink(wisvch))
+		link.DELETE("/:ID", deleteLink(wisvch))
 	}
 
-	r.NoRoute(redirect)
+	// If it is an undefined route, perform a redirect
+	r.NoRoute(redirect(wisvch))
 	r.Run(":8080")
-}
-
-func redirect(c *gin.Context) {
-	path := strings.Split(c.Request.RequestURI[1:], "/")[0]
-
-	var link Link
-	err := db.Model(&Link{}).
-		Where("name = ?", path).
-		Find(&link).
-		Error
-	if err != nil {
-		log.Errorf("unable to retrieve link: '%s', error: %s", c.Request.RequestURI, err.Error())
-		if gorm.IsRecordNotFoundError(err) {
-			// 404 redirect
-			c.String(http.StatusNotFound, "There is no such link present")
-		} else {
-			c.AbortWithStatus(http.StatusInternalServerError)
-		}
-		return
-	}
-
-	c.String(http.StatusOK, "Redirecting to: %s", link.Redirect)
-}
-
-func login(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "admin login here.",
-	})
-}
-
-// get all links, in alphabetical order
-func getAllLink(c *gin.Context) {
-	var links []*Link
-
-	err := db.Model(&Link{}).
-		Order("name").
-		Find(&links).
-		Error
-	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		log.Errorf("unable to retrieve all links, error: %s", err.Error())
-		return
-	}
-
-	c.JSON(http.StatusOK, links)
-}
-
-// create action for a link, required fields are name and redirect
-func createLink(c *gin.Context) {
-	// Get link body
-	link, err := getLinkFromContext(c)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Create link
-	err = db.Model(&Link{}).
-		Create(&link).
-		Error
-	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		log.WithFields(log.Fields{
-			"name":     link.Name,
-			"redirect": link.Redirect,
-		}).Errorf("unable to create link, error: %s", err.Error())
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"message":  "link created.",
-		"ID":       link.ID,
-		"name":     link.Name,
-		"redirect": link.Redirect,
-	})
-}
-
-// update action for a link
-func updateLink(c *gin.Context) {
-	// Get link body
-	link, err := getLinkFromContext(c)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Update link in DB
-	err = db.Model(&Link{}).
-		Where("name = ?", link.Name).
-		Update(Link{Redirect: link.Redirect}).
-		Error
-	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		log.WithFields(log.Fields{
-			"name":     link.Name,
-			"redirect": link.Redirect,
-		}).Errorf("unable to update link, error: %s", err.Error())
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"message": "link updated.",
-	})
-}
-
-// delete a link with path parameter ID
-func deleteLink(c *gin.Context) {
-	// Get path param ID
-	id, err := strconv.Atoi(c.Param("ID"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Delete link on ID
-	err = db.Model(&Link{}).
-		Where("id = ?", id).
-		Delete(&Link{}).
-		Error
-	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		log.Errorf("unable to delete link with id=%d, error: %s", id, err.Error())
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"message": "link deleted.",
-	})
-}
-
-func getLinkFromContext(c *gin.Context) (Link, error) {
-	var link Link
-	err := c.ShouldBindJSON(&link)
-	return link, err
 }
