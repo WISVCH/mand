@@ -13,8 +13,10 @@ import (
 
 // DONE: Build redirect
 // TODO: Build admin pages
+// TODO: Change to forms as inputs
+// TODO: Make teplate for create & update
 // TODO: Build open connect login
-// TODO: Add environment variables for configuration and file settings for local development
+// DONE: Add environment variables for configuration and file settings for local development
 // DONE: Change functions to return a handlerfunc which takes the db
 // DONE: Move link routes to link.go
 // DONE: Move login logic to login.go
@@ -69,6 +71,10 @@ func main() {
 	wisvch.DB.AutoMigrate(&Link{})
 
 	r := gin.Default()
+
+	// Load templates
+	r.LoadHTMLGlob("./resources/*")
+
 	admin := r.Group("/admin")
 	{
 		admin.GET("/", login)

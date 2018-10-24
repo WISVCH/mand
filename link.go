@@ -23,7 +23,9 @@ func getAllLink(a App) gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, links)
+		c.HTML(http.StatusOK, "links.tmpl", gin.H{
+			"links": links,
+		})
 	}
 }
 
