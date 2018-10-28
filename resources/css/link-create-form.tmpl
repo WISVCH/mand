@@ -1,0 +1,40 @@
+{{ define "css/link-create-form.tmpl" }}
+<style>
+    .form-container {
+        background-color: #FFFFFF;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+        margin-top: 16px;
+        padding: 8px;
+    }
+
+    form {
+        margin: 0;
+    }
+
+    form>div {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    form span {
+        padding: 0 16px;
+    }
+
+    p {
+        margin: 0;
+        flex: 1;
+    }
+
+    input[type="text"], input[type="url"] {
+        width: 100%;
+        border: none;
+        border-bottom: 1px solid #EEEEEE;
+    }
+
+    input[type="submit"] {
+        margin: 8px auto 0;
+        display: block;
+        width: 200px;
+    }
+</style>
+{{ end }}

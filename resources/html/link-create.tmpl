@@ -9,22 +9,15 @@
         width: 600px;
         margin: 0 auto;
     }
-    h1 {
-      margin-top: 20px;
-      text-align: center;
-    }
   </style>
+  {{ template "css/header.tmpl"}}
+  {{ template "css/link-create-form.tmpl"}}
+
   <div class="content">
-  <h1>WISV.CH - {{.Action}} link</h1>
-  <div class="link">
-    <div>
-      <b>
-        {{.Name}}
-      </b>
-    </div>
-    <div>
-      {{.Redirect}}
-    </div>
-  </div>
+
+  {{ template "header.tmpl" . }}
+
+  {{ template "link-create-form.tmpl" . }}
+
   </div>
 </html>

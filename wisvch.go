@@ -12,9 +12,11 @@ import (
 )
 
 // DONE: Build redirect
-// TODO: Build admin pages
-// TODO: Change to forms as inputs
-// TODO: Make teplate for create & update
+// DONE: Build admin pages
+// DONE: Change to forms as create input
+// DONE: Change to forms as update input
+// DONE: Make teplate for create
+// DONE: Make teplate for update
 // TODO: Build open connect login
 // DONE: Add environment variables for configuration and file settings for local development
 // DONE: Change functions to return a handlerfunc which takes the db
@@ -22,25 +24,20 @@ import (
 // DONE: Move login logic to login.go
 // DONE: Return error on non-existing link update
 
-// Link type containing information for the redirect entry
-type Link struct {
-	gorm.Model
-	Name     string `gorm:"unique;not null" json:"name" binding:"required"`
-	Redirect string `gorm:"not null" json:"redirect" binding:"required"`
-}
-
 type App struct {
 	DB     *gorm.DB
 	Config Config
 }
 
 type Config struct {
-	Host        string
-	Port        int
-	DBName      string
-	DBUser      string
-	DBPassword  string
-	NotFoundURL string
+	Host          string
+	Port          int
+	DBName        string
+	DBUser        string
+	DBPassword    string
+	DBDebug       bool
+	EmptyRedirect string
+	NotFoundURL   string
 }
 
 func main() {
@@ -67,25 +64,30 @@ func main() {
 	}
 	defer wisvch.DB.Close()
 
+	wisvch.DB.LogMode(wisvch.Config.DBDebug)
+
 	// Automigrate for possible struct updates
 	wisvch.DB.AutoMigrate(&Link{})
 
 	r := gin.Default()
 
 	// Load templates
-	r.LoadHTMLGlob("./resources/*")
+	r.LoadHTMLGlob("./resources/**/*")
 
 	admin := r.Group("/admin")
 	{
-		admin.GET("/", login)
+		admin.GET("/", loginController)
 	}
 
 	link := r.Group("/link")
 	{
-		link.GET("", getAllLink(wisvch))
-		link.POST("", createLink(wisvch))
-		link.PATCH("", updateLink(wisvch))
-		link.DELETE("/:ID", deleteLink(wisvch))
+		link.GET("/all", getAllLinkController(wisvch))
+		link.GET("/one/:Name", getLinkController(wisvch))
+
+		link.POST("/create", createLinkController(wisvch))
+		link.POST("/update/:Name", updateLinkController(wisvch))
+
+		link.GET("/delete/:Name", deleteLinkController(wisvch))
 	}
 
 	// If it is an undefined route, perform a redirect

@@ -1,0 +1,47 @@
+<html>
+  <style>
+    body {
+        font-family: "Helvetica Neue", "Calibri Light", Roboto, sans-serif;
+        margin: 0;
+        background-color: #eeeeee;
+    }
+    .content {
+        width: 600px;
+        margin: 0 auto;
+    }
+  </style>
+
+  {{template "css/header.tmpl" . }}
+  {{template "css/link-create-form.tmpl" . }}
+
+  <style>
+    b {
+        margin: 0;
+        flex: 1;
+        text-align: center;
+    }
+  </style>
+  <div class="content">
+
+  {{ template "header.tmpl" . }}
+
+  <section class="form-container">
+    <form action="/link/update/{{.name}}" method="POST">
+      <div>
+        <b>
+          {{.name}}
+          <input name="name" type="hidden" value="{{.name}}"/>
+        </b>
+        <span>
+          →
+        </span>
+        <p>
+          <input name="redirect" type="url" value="{{.redirect}}"/>
+        </p>
+      </div>
+      <input type="submit" value="Update link"/>
+    </form>
+  </section>
+
+  </div>
+</html>

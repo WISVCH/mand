@@ -1,0 +1,18 @@
+{{ define "link-create-form.tmpl" }}
+<section class="form-container">
+    <form action="/link/create" method="POST">
+        <div>
+            <p>
+                <input name="name" type="text" value="{{.name}}" />
+            </p>
+            <span>
+                →
+            </span>
+            <p>
+                <input name="redirect" type="url" value="{{.redirect}}" />
+            </p>
+        </div>
+        <input type="submit" value="Create link" />
+    </form>
+</section>
+{{ end }}

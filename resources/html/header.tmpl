@@ -1,0 +1,11 @@
+{{ define "header.tmpl" }}
+<a href="/link/all">
+  <h1>WISV.CH</h1>
+</a>
+
+{{if .errorMessage}}
+<div class="message error">
+  {{.errorMessage}}
+</div>
+{{end}}
+{{ end }}

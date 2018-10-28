@@ -12,6 +12,10 @@ func redirect(a App) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		path := strings.Split(c.Request.RequestURI[1:], "/")[0]
 
+		if path == "" {
+			c.Redirect(http.StatusFound, a.Config.EmptyRedirect)
+		}
+
 		var link Link
 		err := a.DB.Model(&Link{}).
 			Where("name = ?", path).

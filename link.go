@@ -1,58 +1,89 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
 	"net/http"
-	"net/url"
-	"strconv"
 )
 
-// get all links, in alphabetical order
-func getAllLink(a App) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		var links []*Link
+// Link type containing information for the redirect entry
+type Link struct {
+	gorm.Model
+	Name     string `gorm:"unique;not null" form:"name" binding:"required"`
+	Redirect string `gorm:"not null" form:"redirect" binding:"required"`
+}
 
-		err := a.DB.Model(&Link{}).
-			Order("name").
-			Find(&links).
-			Error
+// get all links, in alphabetical order
+func getAllLinkController(a App) gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		links, err := a.getAllLink(c.Query("Search"))
 		if err != nil {
-			c.AbortWithStatus(http.StatusInternalServerError)
+			renderPage(c, "links.tmpl", &gin.H{
+				"errorMessage": "Unable to retrieve links",
+			})
 			log.Errorf("unable to retrieve all links, error: %s", err.Error())
 			return
 		}
 
-		c.HTML(http.StatusOK, "links.tmpl", gin.H{
+		renderPage(c, "links.tmpl", &gin.H{
 			"links": links,
 		})
 	}
 }
 
-// create action for a link, required fields are name and redirect
-func createLink(a App) gin.HandlerFunc {
+// get link
+func getLinkController(a App) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		name := c.Param("Name")
+
+		var link Link
+		err := a.DB.Model(&Link{}).
+			Where("name = ?", name).
+			Find(&link).
+			Error
+		if err != nil {
+			links, _ := a.getAllLink("")
+			renderPage(c, "links.tmpl", &gin.H{
+				"errorMessage": "Unable to retrieve link",
+				"links": links,
+			})
+			log.Errorf("unable to retrieve link=%s, error: %s", name, err.Error())
+			return
+		}
+
+		renderPage(c, "link-update.tmpl", &gin.H{
+			"name":     link.Name,
+			"redirect": link.Redirect,
+		})
+	}
+}
+
+// create a link, required fields are name and redirect
+func createLinkController(a App) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get link body
 		link, err := getLinkFromContext(c)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			log.Errorf("unable to parse request, error: %s", err.Error())
+			renderPage(c, "link-create.tmpl", &gin.H{
+				"errorMessage": fmt.Sprintf("unable to parse request, error %s", err.Error()),
+				"name":         link.Name,
+				"redirect":     link.Redirect,
+			})
 			return
 		}
 
-		// Parse and correct url if needed
-		err = checkURL(link)
+		// Create link
+		err = a.createLink(link)
 		if err != nil {
-			log.Errorf("unable to check url: %s, error: %s", link.Redirect, err.Error())
-			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid url."})
-			return
-		}
-
-		// Create link in DB
-		err = a.DB.Model(&Link{}).
-			Create(&link).
-			Error
-		if err != nil {
-			c.AbortWithStatus(http.StatusInternalServerError)
+			renderPage(c, "link-create.tmpl", &gin.H{
+				"errorMessage": fmt.Sprintf("Unable to create link: %s", err.Error()),
+				"name":         link.Name,
+				"redirect":     link.Redirect,
+			})
 			log.WithFields(log.Fields{
 				"name":     link.Name,
 				"redirect": link.Redirect,
@@ -60,42 +91,33 @@ func createLink(a App) gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{
-			"message":  "link created.",
-			"ID":       link.ID,
-			"name":     link.Name,
-			"redirect": link.Redirect,
-		})
+		c.Redirect(http.StatusFound, "/link/all")
 	}
 }
 
-// update action for a link
-func updateLink(a App) gin.HandlerFunc {
+// update a link, required fields are name and redirect
+func updateLinkController(a App) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get link body
 		link, err := getLinkFromContext(c)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			log.Errorf("unable to parse request, error: %s", err.Error())
+			renderPage(c, "link-update.tmpl", &gin.H{
+				"errorMessage": fmt.Sprintf("unable to parse request, error %s", err.Error()),
+				"name":         link.Name,
+				"redirect":     link.Redirect,
+			})
 			return
 		}
 
-		// Parse and correct url if needed
-		err = checkURL(link)
+		// Update link
+		err = a.updateLink(link)
 		if err != nil {
-			log.Errorf("unable to check url: %s, error: %s", link.Redirect, err.Error())
-			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid url."})
-			return
-		}
-
-		var updated int
-		// Update link in DB
-		err = a.DB.Model(&Link{}).
-			Where("name = ?", link.Name).
-			Update(Link{Redirect: link.Redirect}).
-			Count(&updated).
-			Error
-		if err != nil {
-			c.AbortWithStatus(http.StatusInternalServerError)
+			renderPage(c, "link-update.tmpl", &gin.H{
+				"errorMessage": fmt.Sprintf("Unable to update link: %s", err.Error()),
+				"name":         link.Name,
+				"redirect":     link.Redirect,
+			})
 			log.WithFields(log.Fields{
 				"name":     link.Name,
 				"redirect": link.Redirect,
@@ -103,62 +125,32 @@ func updateLink(a App) gin.HandlerFunc {
 			return
 		}
 
-		// If zero records updated, return Not Found status
-		if updated < 1 {
-			c.AbortWithStatus(http.StatusNotFound)
-			return
-		}
-
-		c.JSON(http.StatusOK, gin.H{
-			"message": "link updated.",
-		})
+		c.Redirect(http.StatusFound, "/link/all")
 	}
 }
 
-// delete a link with path parameter ID
-func deleteLink(a App) gin.HandlerFunc {
+// delete a link with path parameter Name
+func deleteLinkController(a App) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Get path param ID
-		id, err := strconv.Atoi(c.Param("ID"))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
+		// Get path param Name
+		name := c.Param("Name")
 
-		// Delete link on ID
-		err = a.DB.Model(&Link{}).
-			Where("id = ?", id).
+		// Delete link on Name
+		err := a.DB.Model(&Link{}).
+			Where("name = ?", name).
 			Unscoped().
 			Delete(&Link{}).
 			Error
 		if err != nil {
-			c.AbortWithStatus(http.StatusInternalServerError)
-			log.Errorf("unable to delete link with id=%d, error: %s", id, err.Error())
+			links, _ := a.getAllLink("")
+			renderPage(c, "links.tmpl", &gin.H{
+				"errorMessage": fmt.Sprintf("Unable to delete link, error: %s", err.Error()),
+				"links":        links,
+			})
+			log.Errorf("unable to delete link with name=%s, error: %s", name, err.Error())
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{
-			"message": "link deleted.",
-		})
+		c.Redirect(http.StatusFound, "/link/all")
 	}
-}
-
-func getLinkFromContext(c *gin.Context) (Link, error) {
-	var link Link
-	err := c.ShouldBindJSON(&link)
-	return link, err
-}
-
-func checkURL(link Link) error {
-	u, err := url.Parse(link.Redirect)
-	if err != nil {
-		return err
-	}
-
-	if u.Scheme == "" {
-		u.Scheme = "https:"
-		link.Redirect = u.String()
-	}
-
-	return nil
 }
