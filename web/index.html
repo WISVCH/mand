@@ -1,0 +1,192 @@
+<html>
+  <head>
+  </head>
+  <body>
+    <h1>Mand</h1>
+    <section id="search">
+      <input type="text" name="search" value="" placeholder="Search"/>
+    </section>
+
+    <section id="links">
+    </section>
+
+    <section id="create">
+      <form action="javascript:void(0);">
+        <input id="name" name="Name" type="text" value="" placeholder="Name" required/>
+        <span>→</span>
+        <input id="url" name="Redirect" type="URL" value="" placeholder="URL" required/>
+        <button class="submit">Create</button>
+      </form>
+    </section>
+
+    <section id="update">
+      <form action="javascript:void(0);">
+        <input id="name" name="Name" type="text" value="" placeholder="Name" required/>
+        <span>→</span>
+        <input id="url" name="Redirect" type="URL" value="" placeholder="URL" required/>
+        <button class="cancel">Cancel</button>
+        <button class="submit">Save</button>
+      </form>
+    </section>
+  </body>
+  <script>
+   var updating;
+   document.querySelector('#update').style.display = 'none';
+
+   // Render links on the page
+   const renderLinks = function(links) {
+     const linksEl = document.querySelector('#links');
+     // Remove old links
+     linksEl.querySelectorAll('div').forEach((l) => {
+       linksEl.removeChild(l);
+     });
+
+     // Add each link to the dom, can be done better by first building link elements and then adding
+     links.forEach((l) => {
+       let link = document.createElement('div');
+       link.innerHTML = `
+         <span>${l.Name}</span>
+         <span>→</span>
+         <a href="${l.Redirect}">${l.Redirect}</a>
+       `;
+       link.classList.add('link')
+       link.data = l;
+
+       let edit = document.createElement('span');
+       edit.innerText = '✎';
+       edit.onclick = (e) => {
+         let data = e.composedPath().find((e) => { return e.classList && e.classList.contains('link'); }).data;
+         updating = data;
+         let fields = document.querySelector('#update').querySelectorAll('input');
+         for (let i of fields) {
+           i.value = data[i.name];
+         }
+         document.querySelector('#update').style.display = 'block';
+       };
+       link.appendChild(edit)
+
+       let remove = document.createElement('span');
+       remove.innerText = '×';
+       remove.onclick = (e) => {
+         let data = e.composedPath().find((e) => { return e.classList && e.classList.contains('link'); }).data;
+         if (confirm(`Are you sure you want to delete this link?\n\n${data.Name}\n\n${data.Redirect}`)) {
+           fetch(`/link/${data.Name}`, {method: 'DELETE'})
+             .then((r) => {
+               updateLinks();
+             })
+             .catch((r) => {
+               alert('Something went wrong, please refresh the page.');
+               console.error(r);
+             })
+         }
+       };
+       link.appendChild(remove)
+
+       linksEl.appendChild(link);
+     })
+   };
+
+   // Get all the links
+   const updateLinks = function(search = '') {
+     let myHeaders = new Headers();
+     myHeaders.set('X-Search', search);
+     let config = {
+       headers: myHeaders,
+     }
+
+     fetch('/link', config)
+       .then((r) => {
+         return r.json();
+       })
+       .then((json) => {
+         renderLinks(json);
+       })
+       .catch((r) => {
+         alert('Something went wrong, please refresh the page.');
+         console.error(r);
+       });
+   };
+
+   // The search action
+   document.querySelector('#search').querySelector('input').addEventListener('input', (e) => {
+     updateLinks(e.target.value);
+   })
+
+   // Create a new link action
+   document.querySelector('#create').querySelector('.submit').onclick = (e) => {
+     let form = document.querySelector('#create').querySelector('form');
+     if (!form.reportValidity()) {
+       return;
+     }
+
+     let data = {};
+     let elements = form.querySelectorAll('input');
+     for (let el of elements) {
+       data[el.name] = el.value;
+     }
+
+     let config = {
+       method: 'POST',
+       body: JSON.stringify(data),
+       headers: {
+         'Content-Type': 'application/json',
+       },
+     };
+
+     fetch('/link', config)
+       .then((r) => {
+         form.reset();
+         updateLinks();
+       })
+       .catch((r) => {
+         alert('Something went wrong, please refresh the page.');
+         console.error(r);
+       });
+   }
+
+   // Update a link action
+   document.querySelector('#update').querySelector('.submit').onclick = (e) => {
+     let form = document.querySelector('#update').querySelector('form');
+     if (!form.reportValidity()) {
+       return;
+     }
+
+     let data = {};
+     let elements = form.querySelectorAll('input');
+     for (let el of elements) {
+       data[el.name] = el.value;
+     }
+
+     let config = {
+       method: 'PATCH',
+       body: JSON.stringify(data),
+       headers: {
+         'Content-Type': 'application/json',
+       },
+     };
+
+     fetch(`/link/${updating.Name}`, config)
+       .then((r) => {
+         document.querySelector('#update').style.display = 'none';
+         form.reset();
+         delete updating;
+         updateLinks();
+       })
+       .catch((r) => {
+         alert('Something went wrong, please refresh the page.');
+         console.error(r);
+       });
+   }
+
+   // Update cancel action
+   document.querySelector('#update').querySelector('.cancel').onclick = (e) => {
+     document.querySelector('#update').style.display = 'none';
+     let form = document.querySelector('#update').querySelector('form');
+     form.reset();
+     delete updating;
+   }
+
+   // Populate page with initial links
+   updateLinks();
+  </script>
+</html>
