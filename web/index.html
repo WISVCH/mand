@@ -1,5 +1,11 @@
 <html>
   <head>
+    <style>
+     img {
+       height: 24px;
+       width: 24px;
+     }
+    </style>
   </head>
   <body>
     <h1>Mand</h1>
@@ -52,8 +58,8 @@
        link.classList.add('link')
        link.data = l;
 
-       let edit = document.createElement('span');
-       edit.innerText = '✎';
+       let edit = document.createElement('img');
+       edit.src = './edit.svg';
        edit.onclick = (e) => {
          let data = e.composedPath().find((e) => { return e.classList && e.classList.contains('link'); }).data;
          updating = data;
@@ -65,8 +71,8 @@
        };
        link.appendChild(edit)
 
-       let remove = document.createElement('span');
-       remove.innerText = '×';
+       let remove = document.createElement('img');
+       remove.src = './delete.svg';
        remove.onclick = (e) => {
          let data = e.composedPath().find((e) => { return e.classList && e.classList.contains('link'); }).data;
          if (confirm(`Are you sure you want to delete this link?\n\n${data.Name}\n\n${data.Redirect}`)) {
