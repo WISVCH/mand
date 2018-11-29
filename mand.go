@@ -73,11 +73,12 @@ func main() {
 
 	auth := r.Group("/auth")
 	{
-		auth.Any("/connect/callback", callbackController(mand))
+		auth.GET("/connect/callback", callbackController(mand))
 		auth.GET("/connect/login", loginController(mand))
 	}
 
 	link := r.Group("/link")
+	link.Use(connectMiddleware())
 	{
 		link.GET("/", getAllLinkController(mand))
 		link.POST("/", createLinkController(mand))

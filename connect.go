@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/coreos/go-oidc"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
@@ -23,7 +22,7 @@ func connect(URL string, clientID string, clientSecret string, redirectURL strin
 		log.Fatalf("unable to create new authentication provider, error: %s", err.Error())
 	}
 
-	verifier = provider.Verifier(&oidc.Config{ClientID: "2e7726ae-1547-4a95-a61f-f84567578808"})
+	verifier = provider.Verifier(&oidc.Config{ClientID: clientID})
 
 	// Configure an OpenID Connect aware OAuth2 client.
 	connectConfig = oauth2.Config{
@@ -37,13 +36,21 @@ func connect(URL string, clientID string, clientSecret string, redirectURL strin
 		// "openid" is a required scope for OpenID Connect flows.
 		Scopes: []string{oidc.ScopeOpenID, "ldap", "ldap_groups"},
 	}
+}
 
-	url := connectConfig.AuthCodeURL("login")
-	spew.Dump(url)
+func connectMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if checkAuth(c.GetHeader("X-Auth")) {
+			c.Next()
+		} else {
+			c.AbortWithStatus(http.StatusUnauthorized)
+		}
+	}
 }
 
 func loginController(a App) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// change to hash of the session or some other sort unique session identifiable data for the user to avoid csrf attacks
 		c.Redirect(http.StatusFound, connectConfig.AuthCodeURL("login"))
 	}
 }
@@ -61,18 +68,36 @@ func callbackController(a App) gin.HandlerFunc {
 			log.Errorf("unable to get id_token from login")
 			return
 		}
-		idToken, err := verifier.Verify(context.TODO(), rawIDToken)
-		if err != nil {
-			log.Errorf("unable to verify id_token, error: %s", err.Error())
-			return
-		}
 
-		var claims struct {
-			Groups []string `json:"ldap_groups"`
+		if checkAuth(rawIDToken) {
+			c.JSON(http.StatusOK, gin.H{
+				"token": rawIDToken,
+			})
+		} else {
+			c.AbortWithStatus(http.StatusUnauthorized)
 		}
-		if err := idToken.Claims(&claims); err != nil {
-			log.Errorf("unable to read ldap_groups from id_token, error: %s", err.Error())
-		}
-		spew.Dump(claims)
 	}
+}
+
+func checkAuth(rawIDToken string) bool {
+	idToken, err := verifier.Verify(context.TODO(), rawIDToken)
+	if err != nil {
+		log.Errorf("unable to verify id_token, error: %s", err.Error())
+		return false
+	}
+
+	var claims struct {
+		Groups []string `json:"ldap_groups"`
+	}
+	if err := idToken.Claims(&claims); err != nil {
+		log.Errorf("unable to read ldap_groups from id_token, error: %s", err.Error())
+		return false
+	}
+
+	for _, group := range claims.Groups {
+		if group == "lanciedev" {
+			return true
+		}
+	}
+	return false
 }

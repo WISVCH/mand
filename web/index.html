@@ -1,43 +1,75 @@
 <html>
   <head>
+    <meta charset="utf-8" />
+    <title>Mand - Redirect URL's</title>
+    <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
     <style>
      img {
        height: 24px;
        width: 24px;
      }
+
+     #content {
+       /* display: none; */
+     }
     </style>
   </head>
   <body>
     <h1>Mand</h1>
-    <section id="search">
-      <input type="text" name="search" value="" placeholder="Search"/>
-    </section>
 
-    <section id="links">
-    </section>
+    <div id="login">
+      <section>
+        <a href="/auth/connect/login">Log in with CH Connect</a>
+      </section>
+    </div>
 
-    <section id="create">
-      <form action="javascript:void(0);">
-        <input id="name" name="Name" type="text" value="" placeholder="Name" required/>
-        <span>→</span>
-        <input id="url" name="Redirect" type="URL" value="" placeholder="URL" required/>
-        <button class="submit">Create</button>
-      </form>
-    </section>
+    <div id="content">
+      <section id="search">
+        <input type="text" name="search" value="" placeholder="Search"/>
+      </section>
 
-    <section id="update">
-      <form action="javascript:void(0);">
-        <input id="name" name="Name" type="text" value="" placeholder="Name" required/>
-        <span>→</span>
-        <input id="url" name="Redirect" type="URL" value="" placeholder="URL" required/>
-        <button class="cancel">Cancel</button>
-        <button class="submit">Save</button>
-      </form>
-    </section>
+      <section id="links">
+      </section>
+
+      <section id="create">
+        <form action="javascript:void(0);">
+          <input id="name" name="Name" type="text" value="" placeholder="Name" required/>
+          <span>→</span>
+          <input id="url" name="Redirect" type="URL" value="" placeholder="URL" required/>
+          <button class="submit">Create</button>
+        </form>
+      </section>
+
+      <section id="update">
+        <form action="javascript:void(0);">
+          <input id="name" name="Name" type="text" value="" placeholder="Name" required/>
+          <span>→</span>
+          <input id="url" name="Redirect" type="URL" value="" placeholder="URL" required/>
+          <button class="cancel">Cancel</button>
+          <button class="submit">Save</button>
+        </form>
+      </section>
+    </div>
   </body>
   <script>
    var updating;
    document.querySelector('#update').style.display = 'none';
+
+   const checkLogin = function() {
+     const url = `/auth/connect/callback${location.search}`;
+     console.log(url);
+     fetch(url, {})
+       .then((r) => {
+         return r.json();
+       })
+       .then((json) => {
+         console.log(json);
+       })
+       .catch((r) => {
+         alert('Something went wrong, please refresh the page.');
+         console.error(r);
+       });
+   };
 
    // Render links on the page
    const renderLinks = function(links) {
@@ -191,6 +223,8 @@
      form.reset();
      delete updating;
    }
+
+   checkLogin();
 
    // Populate page with initial links
    updateLinks();
