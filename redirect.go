@@ -1,18 +1,19 @@
 package main
 
 import (
+	"net/http"
+	"strings"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
-	"net/http"
-	"strings"
 )
 
 func redirect(a App) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		path := strings.Split(c.Request.RequestURI[1:], "/")[0]
 
-		if path == "" {
+		if path == "" || path == "/" {
 			c.Redirect(http.StatusFound, a.Config.EmptyRedirect)
 		}
 

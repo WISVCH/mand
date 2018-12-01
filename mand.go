@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -59,23 +60,14 @@ func main() {
 
 	r := gin.Default()
 
-	// Load templates
-	r.LoadHTMLGlob("./resources/**/*")
-
-	admin := r.Group("/admin")
-	{
-		admin.GET("/", loginController)
-	}
+	r.StaticFS("/admin", http.Dir("web"))
 
 	link := r.Group("/link")
 	{
-		link.GET("/all", getAllLinkController(mand))
-		link.GET("/one/:Name", getLinkController(mand))
-
-		link.POST("/create", createLinkController(mand))
-		link.POST("/update/:Name", updateLinkController(mand))
-
-		link.GET("/delete/:Name", deleteLinkController(mand))
+		link.GET("/", getAllLinkController(mand))
+		link.POST("/", createLinkController(mand))
+		link.PATCH("/:Name", updateLinkController(mand))
+		link.DELETE("/:Name", deleteLinkController(mand))
 	}
 
 	// If it is an undefined route, perform a redirect

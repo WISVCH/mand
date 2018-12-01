@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"net/http"
 	"net/url"
+
+	"github.com/gin-gonic/gin"
 )
 
 func (a App) createLink(l *Link) error {
@@ -13,26 +13,21 @@ func (a App) createLink(l *Link) error {
 		Error
 }
 
-func (a App) updateLink(l *Link) error {
-	var updated int
+func (a App) updateLink(name string, l *Link) error {
+	fmt.Printf("link %s", name)
 	err := a.DB.Model(&Link{}).
-		Where("name = ?", l.Name).
-		Update("redirect", l.Redirect).
-		Count(&updated).
+		Where("name = ?", name).
+		Update(&l).
 		Error
 	if err != nil {
 		return err
-	}
-	// If zero records updated, return error
-	if updated < 1 {
-		return fmt.Errorf("unable to update link with name=%s, link does not exist.", l.Name)
 	}
 	return nil
 }
 
 func getLinkFromContext(c *gin.Context) (*Link, error) {
 	link := &Link{}
-	err := c.ShouldBind(link)
+	err := c.ShouldBindJSON(link)
 	if err != nil {
 		return nil, err
 	}
@@ -51,10 +46,6 @@ func getLinkFromContext(c *gin.Context) (*Link, error) {
 	}
 
 	return link, nil
-}
-
-func renderPage(c *gin.Context, template string, data *gin.H) {
-	c.HTML(http.StatusOK, template, data)
 }
 
 func (a App) getAllLink(search string) ([]*Link, error) {
