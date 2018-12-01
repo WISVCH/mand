@@ -4,55 +4,146 @@
     <title>Mand - Redirect URL's</title>
     <link rel="shortcut icon" href="/admin/favicon.png" type="image/x-icon">
     <style>
-     img {
-       height: 24px;
-       width: 24px;
+     body {
+       margin: 0px;
+       font-family: "Helvetica Neue", "Calibri Light", Roboto, sans-serif;
+       -webkit-font-smoothing: antialiased;
+       -moz-osx-font-smoothing: grayscale;
+       font-size: 16px;
+       letter-spacing: 0.02em;
+
+       --primary-color: #40556a;
+       --secondary-color: #e7ebf1;
+     }
+
+     body > div {
+       display: flex;
+       flex-direction: column;
+       max-width: 800px;
+       height: 100vh;
+       margin: 0 auto;
+     }
+
+     body > div > h1,
+     #login {
+       text-align: center;
+     }
+
+     h1 {
+       color: var(--primary-color);
+       text-decoration: underline;
+     }
+
+     #login,
+     #login > section,
+     #content {
+       display: flex;
+       flex: 1;
+     }
+
+     #login a {
+       margin: auto;
+       background-color: var(--primary-color);
+       color: #ffffff;
+       padding: 16px;
+       border-radius: 2px;
      }
 
      #content {
        display: none;
      }
+
+     #content > section {
+       margin: 16px;
+     }
+
+     #content > #search,
+     #content > section > form {
+       display: flex;
+     }
+
+     img {
+       height: 24px;
+       width: 24px;
+     }
+
+     input {
+       flex: 1;
+       border: none;
+       margin: 0 4px;
+       font-size: 16px;
+       border-bottom: solid 2px var(--primary-color);
+     }
+
+     button {
+       margin: auto 0 auto 4px;
+       background-color: var(--primary-color);
+       color: #ffffff;
+       padding: 8px;
+       border-radius: 2px;
+       border: none;
+     }
+
+     #links > div {
+       padding: 8px;
+       display: flex;
+       text-align: center;
+     }
+
+     #links > div > :nth-child(-n+3) {
+       flex: 1;
+     }
+
+     #links > div:nth-of-type(2n-1) {
+       background-color: var(--secondary-color);
+     }
+
+     #update {
+       display: none;
+     }
     </style>
   </head>
   <body>
-    <h1>Mand</h1>
+    <div>
+      <h1>Mand - Redirect URL's</h1>
 
-    <div id="login">
-      <section>
-        <a href="/auth/connect/login">Log in with CH Connect</a>
-      </section>
-    </div>
+      <div id="login">
+        <section>
+          <a href="/auth/connect/login">Log in with CH Connect</a>
+        </section>
+      </div>
 
-    <div id="content">
-      <section id="search">
-        <input type="text" name="search" value="" placeholder="Search"/>
-      </section>
+      <div id="content">
+        <section id="search">
+          <input type="text" name="search" value="" placeholder="Search"/>
+        </section>
 
-      <section id="links">
-      </section>
+        <section id="links">
+        </section>
 
-      <section id="create">
-        <form action="javascript:void(0);">
-          <input id="name" name="Name" type="text" value="" placeholder="Name" required/>
-          <span>→</span>
-          <input id="url" name="Redirect" type="URL" value="" placeholder="URL" required/>
-          <button class="submit">Create</button>
-        </form>
-      </section>
+        <section id="create">
+          <form action="javascript:void(0);">
+            <input id="name" name="Name" type="text" value="" placeholder="Name" required/>
+            <img alt="" src="/admin/to.svg"/>
+            <input id="url" name="Redirect" type="URL" value="" placeholder="URL" required/>
+            <button class="submit">Create</button>
+          </form>
+        </section>
 
-      <section id="update">
-        <form action="javascript:void(0);">
-          <input id="name" name="Name" type="text" value="" placeholder="Name" required/>
-          <span>→</span>
-          <input id="url" name="Redirect" type="URL" value="" placeholder="URL" required/>
-          <button class="cancel">Cancel</button>
-          <button class="submit">Save</button>
-        </form>
-      </section>
+        <section id="update">
+          <form action="javascript:void(0);">
+            <input id="name" name="Name" type="text" value="" placeholder="Name" required/>
+            <img alt="" src="/admin/to.svg"/>
+            <input id="url" name="Redirect" type="URL" value="" placeholder="URL" required/>
+            <button class="cancel">Cancel</button>
+            <button class="submit">Save</button>
+          </form>
+        </section>
+      </div>
+
     </div>
   </body>
   <script>
-   let updating;
    let auth;
 
    document.querySelector('#update').style.display = 'none';
@@ -84,6 +175,28 @@
 
      return config = {
        headers: myHeaders,
+     }
+   }
+
+   // SwitchCreateUpdate switches to update mode when there is updateData, if not, we switch to create mode
+   const switchCreateUpdate = (updateData) => {
+     let create = document.querySelector('#create');
+     let update = document.querySelector('#update');
+     create.querySelector('form').reset();
+     update.querySelector('form').reset();
+
+     if (updateData) {
+       let fields = update.querySelectorAll('input');
+
+       for (let i of fields) {
+         i.value = updateData[i.name];
+       }
+
+       create.style.display = 'none';
+       update.style.display = 'block';
+     } else {
+       create.style.display = 'block';
+       update.style.display = 'none';
      }
    }
 
@@ -124,7 +237,7 @@
    const renderLinks = function(links) {
      const linksEl = document.querySelector('#links');
      // Remove old links
-     linksEl.querySelectorAll('div').forEach((l) => {
+     linksEl.querySelectorAll('div.link').forEach((l) => {
        linksEl.removeChild(l);
      });
 
@@ -133,7 +246,9 @@
        let link = document.createElement('div');
        link.innerHTML = `
          <span>${l.Name}</span>
-         <span>→</span>
+         <div>
+           <img src="/admin/to.svg"/>
+         </div>
          <a href="${l.Redirect}">${l.Redirect}</a>
        `;
        link.classList.add('link')
@@ -143,12 +258,7 @@
        edit.src = '/admin/edit.svg';
        edit.onclick = (e) => {
          let data = e.composedPath().find((e) => { return e.classList && e.classList.contains('link'); }).data;
-         updating = data;
-         let fields = document.querySelector('#update').querySelectorAll('input');
-         for (let i of fields) {
-           i.value = data[i.name];
-         }
-         document.querySelector('#update').style.display = 'block';
+         switchCreateUpdate(data);
        };
        link.appendChild(edit)
 
@@ -247,9 +357,7 @@
      fetch(`/link/${updating.Name}`, config)
        .then(handleErrors)
        .then((r) => {
-         document.querySelector('#update').style.display = 'none';
-         form.reset();
-         delete updating;
+         switchCreateUpdate();
          updateLinks();
        })
        .catch(catchErrors);
@@ -257,12 +365,10 @@
 
    // Update cancel action
    document.querySelector('#update').querySelector('.cancel').onclick = (e) => {
-     document.querySelector('#update').style.display = 'none';
-     let form = document.querySelector('#update').querySelector('form');
-     form.reset();
-     delete updating;
+     switchCreateUpdate();
    }
 
+   // Check if we are able to log the user in, if so, login
    checkLogin();
 
    // Populate page with initial links
