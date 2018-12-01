@@ -1,7 +1,12 @@
 <html>
   <head>
     <meta charset="utf-8" />
+
     <title>Mand - Redirect URL's</title>
+    <meta name="description" content="Redirect subpages to URL's" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link rel="shortcut icon" href="/admin/favicon.png" type="image/x-icon">
     <style>
      body {
@@ -84,17 +89,26 @@
        border: none;
      }
 
-     #links > div {
+     .link {
        padding: 8px;
        display: flex;
+       justify-content: space-between;
        text-align: center;
      }
 
-     #links > div > :nth-child(-n+3) {
+     .link a {
+       word-break: break-all;
+     }
+
+     .link > :nth-child(-n+3) {
        flex: 1;
      }
 
-     #links > div:nth-of-type(2n-1) {
+     .link > img {
+       margin: 0 0 0 4px;
+     }
+
+     .link:nth-of-type(2n-1) {
        background-color: var(--secondary-color);
      }
 
@@ -144,7 +158,9 @@
     </div>
   </body>
   <script>
-   let auth;
+   // updating is used to store the name of the entry we're updating, we have to use this to write the updated link
+   let updating;
+   let token;
 
    document.querySelector('#update').style.display = 'none';
 
@@ -167,14 +183,14 @@
 
    // Construct a basic config to be used for all fetch requests
    const getBasicFetchConfig = () => {
-     let myHeaders = new Headers();
+     let headers = new Headers();
 
-     if (auth) {
-       myHeaders.set('X-Auth', auth);
+     if (token) {
+       headers.append('X-Auth', token);
      }
 
      return config = {
-       headers: myHeaders,
+       headers: headers,
      }
    }
 
@@ -186,6 +202,7 @@
      update.querySelector('form').reset();
 
      if (updateData) {
+       updating = updateData.Name;
        let fields = update.querySelectorAll('input');
 
        for (let i of fields) {
@@ -217,7 +234,7 @@
        })
        .then((json) => {
          // Set authentication token and push logged in navigation state
-         auth = json.token;
+         token = json.token;
          history.pushState({}, "Mand admin page", "/admin");
 
          // Retrieve links now that we are authenticated
@@ -251,7 +268,7 @@
          </div>
          <a href="${l.Redirect}">${l.Redirect}</a>
        `;
-       link.classList.add('link')
+       link.classList.add('link');
        link.data = l;
 
        let edit = document.createElement('img');
@@ -260,7 +277,7 @@
          let data = e.composedPath().find((e) => { return e.classList && e.classList.contains('link'); }).data;
          switchCreateUpdate(data);
        };
-       link.appendChild(edit)
+       link.appendChild(edit);
 
        let remove = document.createElement('img');
        remove.src = '/admin/delete.svg';
@@ -278,7 +295,7 @@
              .catch(catchErrors);
          }
        };
-       link.appendChild(remove)
+       link.appendChild(remove);
 
        linksEl.appendChild(link);
      })
@@ -286,12 +303,12 @@
 
    // Get all the links
    const updateLinks = function(search = '') {
-     if (!auth) {
+     if (!token) {
        return;
      }
 
      let config = getBasicFetchConfig();
-     config.headers.set('X-Search', search);
+     config.headers.append('X-Search', search);
 
      fetch('/link', config)
        .then(handleErrors)
@@ -354,7 +371,7 @@
      config.body = JSON.stringify(data);
      config.headers.set('Content-Type', 'application/json');
 
-     fetch(`/link/${updating.Name}`, config)
+     fetch(`/link/${updating}`, config)
        .then(handleErrors)
        .then((r) => {
          switchCreateUpdate();
