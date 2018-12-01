@@ -1,49 +1,260 @@
 <html>
   <head>
+    <meta charset="utf-8" />
+
+    <title>Mand - Redirect URL's</title>
+    <meta name="description" content="Redirect subpages to URL's" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="shortcut icon" href="/admin/favicon.png" type="image/x-icon">
     <style>
+     body {
+       margin: 0px;
+       font-family: "Helvetica Neue", "Calibri Light", Roboto, sans-serif;
+       -webkit-font-smoothing: antialiased;
+       -moz-osx-font-smoothing: grayscale;
+       font-size: 16px;
+       letter-spacing: 0.02em;
+
+       --primary-color: #40556a;
+       --secondary-color: #e7ebf1;
+     }
+
+     body > div {
+       display: flex;
+       flex-direction: column;
+       max-width: 800px;
+       height: 100vh;
+       margin: 0 auto;
+     }
+
+     body > div > h1,
+     #login {
+       text-align: center;
+     }
+
+     h1 {
+       color: var(--primary-color);
+       text-decoration: underline;
+     }
+
+     #login,
+     #login > section,
+     #content {
+       display: flex;
+       flex: 1;
+     }
+
+     #login a {
+       margin: auto;
+       background-color: var(--primary-color);
+       color: #ffffff;
+       padding: 16px;
+       border-radius: 2px;
+     }
+
+     #content {
+       display: none;
+     }
+
+     #content > section {
+       margin: 16px;
+     }
+
+     #content > #search,
+     #content > section > form {
+       display: flex;
+     }
+
      img {
        height: 24px;
        width: 24px;
      }
+
+     input {
+       flex: 1;
+       border: none;
+       margin: 0 4px;
+       font-size: 16px;
+       border-bottom: solid 2px var(--primary-color);
+     }
+
+     button {
+       margin: auto 0 auto 4px;
+       background-color: var(--primary-color);
+       color: #ffffff;
+       padding: 8px;
+       border-radius: 2px;
+       border: none;
+     }
+
+     .link {
+       padding: 8px;
+       display: flex;
+       justify-content: space-between;
+       text-align: center;
+     }
+
+     .link a {
+       word-break: break-all;
+     }
+
+     .link > :nth-child(-n+3) {
+       flex: 1;
+     }
+
+     .link > img {
+       margin: 0 0 0 4px;
+     }
+
+     .link:nth-of-type(2n-1) {
+       background-color: var(--secondary-color);
+     }
+
+     #update {
+       display: none;
+     }
     </style>
   </head>
   <body>
-    <h1>Mand</h1>
-    <section id="search">
-      <input type="text" name="search" value="" placeholder="Search"/>
-    </section>
+    <div>
+      <h1>Mand - Redirect URL's</h1>
 
-    <section id="links">
-    </section>
+      <div id="login">
+        <section>
+          <a href="/auth/connect/login">Log in with CH Connect</a>
+        </section>
+      </div>
 
-    <section id="create">
-      <form action="javascript:void(0);">
-        <input id="name" name="Name" type="text" value="" placeholder="Name" required/>
-        <span>→</span>
-        <input id="url" name="Redirect" type="URL" value="" placeholder="URL" required/>
-        <button class="submit">Create</button>
-      </form>
-    </section>
+      <div id="content">
+        <section id="search">
+          <input type="text" name="search" value="" placeholder="Search"/>
+        </section>
 
-    <section id="update">
-      <form action="javascript:void(0);">
-        <input id="name" name="Name" type="text" value="" placeholder="Name" required/>
-        <span>→</span>
-        <input id="url" name="Redirect" type="URL" value="" placeholder="URL" required/>
-        <button class="cancel">Cancel</button>
-        <button class="submit">Save</button>
-      </form>
-    </section>
+        <section id="links">
+        </section>
+
+        <section id="create">
+          <form action="javascript:void(0);">
+            <input id="name" name="Name" type="text" value="" placeholder="Name" required/>
+            <img alt="" src="/admin/to.svg"/>
+            <input id="url" name="Redirect" type="URL" value="" placeholder="URL" required/>
+            <button class="submit">Create</button>
+          </form>
+        </section>
+
+        <section id="update">
+          <form action="javascript:void(0);">
+            <input id="name" name="Name" type="text" value="" placeholder="Name" required/>
+            <img alt="" src="/admin/to.svg"/>
+            <input id="url" name="Redirect" type="URL" value="" placeholder="URL" required/>
+            <button class="cancel">Cancel</button>
+            <button class="submit">Save</button>
+          </form>
+        </section>
+      </div>
+
+    </div>
   </body>
   <script>
-   var updating;
+   // updating is used to store the name of the entry we're updating, we have to use this to write the updated link
+   let updating;
+   let token;
+
    document.querySelector('#update').style.display = 'none';
+
+   // Set correct errors on incoming requests
+   const handleErrors = (r) => {
+     if (r.ok) {
+       return r;
+     }
+     if (r.status === 401) {
+       throw new Error(`Unauthorized: must be logged in.\n${r.url}`);
+     }
+     throw new Error(`Network response was not ok.\n${r.url}`);
+   }
+
+   // Handle errors during request processing
+   const catchErrors = (error) => {
+     console.error(error);
+     alert(error.message);
+   }
+
+   // Construct a basic config to be used for all fetch requests
+   const getBasicFetchConfig = () => {
+     let headers = new Headers();
+
+     if (token) {
+       headers.append('X-Auth', token);
+     }
+
+     return config = {
+       headers: headers,
+     }
+   }
+
+   // SwitchCreateUpdate switches to update mode when there is updateData, if not, we switch to create mode
+   const switchCreateUpdate = (updateData) => {
+     let create = document.querySelector('#create');
+     let update = document.querySelector('#update');
+     create.querySelector('form').reset();
+     update.querySelector('form').reset();
+
+     if (updateData) {
+       updating = updateData.Name;
+       let fields = update.querySelectorAll('input');
+
+       for (let i of fields) {
+         i.value = updateData[i.name];
+       }
+
+       create.style.display = 'none';
+       update.style.display = 'block';
+     } else {
+       create.style.display = 'block';
+       update.style.display = 'none';
+     }
+   }
+
+   const checkLogin = function() {
+     // If there are no fetch parameters in the url, we have no parameters to do authentication with
+     if (!location.search) {
+       return;
+     }
+
+     // Extract code from the search part of the url
+     const code = location.search.split('code=')[1].split('&')[0];
+
+     const url = `/auth/connect/callback?code=${code}`;
+     fetch(url, {})
+       .then(handleErrors)
+       .then((r) => {
+         return r.json();
+       })
+       .then((json) => {
+         // Set authentication token and push logged in navigation state
+         token = json.token;
+         history.pushState({}, "Mand admin page", "/admin");
+
+         // Retrieve links now that we are authenticated
+         updateLinks();
+
+         // Show the links section
+         document.querySelector("#login").style.display = 'none';
+         document.querySelector("#content").style.display = 'block';
+       })
+       .catch((error) => {
+         history.pushState({}, "Mand admin page", "/admin");
+         catchErrors(error);
+       });
+   };
 
    // Render links on the page
    const renderLinks = function(links) {
      const linksEl = document.querySelector('#links');
      // Remove old links
-     linksEl.querySelectorAll('div').forEach((l) => {
+     linksEl.querySelectorAll('div.link').forEach((l) => {
        linksEl.removeChild(l);
      });
 
@@ -52,41 +263,39 @@
        let link = document.createElement('div');
        link.innerHTML = `
          <span>${l.Name}</span>
-         <span>→</span>
+         <div>
+           <img src="/admin/to.svg"/>
+         </div>
          <a href="${l.Redirect}">${l.Redirect}</a>
        `;
-       link.classList.add('link')
+       link.classList.add('link');
        link.data = l;
 
        let edit = document.createElement('img');
-       edit.src = './edit.svg';
+       edit.src = '/admin/edit.svg';
        edit.onclick = (e) => {
          let data = e.composedPath().find((e) => { return e.classList && e.classList.contains('link'); }).data;
-         updating = data;
-         let fields = document.querySelector('#update').querySelectorAll('input');
-         for (let i of fields) {
-           i.value = data[i.name];
-         }
-         document.querySelector('#update').style.display = 'block';
+         switchCreateUpdate(data);
        };
-       link.appendChild(edit)
+       link.appendChild(edit);
 
        let remove = document.createElement('img');
-       remove.src = './delete.svg';
+       remove.src = '/admin/delete.svg';
        remove.onclick = (e) => {
          let data = e.composedPath().find((e) => { return e.classList && e.classList.contains('link'); }).data;
          if (confirm(`Are you sure you want to delete this link?\n\n${data.Name}\n\n${data.Redirect}`)) {
-           fetch(`/link/${data.Name}`, {method: 'DELETE'})
+           let config = getBasicFetchConfig();
+           config.method = 'DELETE';
+
+           fetch(`/link/${data.Name}`, config)
+             .then(handleErrors)
              .then((r) => {
                updateLinks();
              })
-             .catch((r) => {
-               alert('Something went wrong, please refresh the page.');
-               console.error(r);
-             })
+             .catch(catchErrors);
          }
        };
-       link.appendChild(remove)
+       link.appendChild(remove);
 
        linksEl.appendChild(link);
      })
@@ -94,23 +303,22 @@
 
    // Get all the links
    const updateLinks = function(search = '') {
-     let myHeaders = new Headers();
-     myHeaders.set('X-Search', search);
-     let config = {
-       headers: myHeaders,
+     if (!token) {
+       return;
      }
 
+     let config = getBasicFetchConfig();
+     config.headers.append('X-Search', search);
+
      fetch('/link', config)
+       .then(handleErrors)
        .then((r) => {
          return r.json();
        })
        .then((json) => {
          renderLinks(json);
        })
-       .catch((r) => {
-         alert('Something went wrong, please refresh the page.');
-         console.error(r);
-       });
+       .catch(catchErrors);
    };
 
    // The search action
@@ -131,23 +339,18 @@
        data[el.name] = el.value;
      }
 
-     let config = {
-       method: 'POST',
-       body: JSON.stringify(data),
-       headers: {
-         'Content-Type': 'application/json',
-       },
-     };
+     let config = getBasicFetchConfig();
+     config.method = 'POST';
+     config.body = JSON.stringify(data);
+     config.headers.set('Content-Type', 'application/json');
 
      fetch('/link', config)
+       .then(handleErrors)
        .then((r) => {
          form.reset();
          updateLinks();
        })
-       .catch((r) => {
-         alert('Something went wrong, please refresh the page.');
-         console.error(r);
-       });
+       .catch(catchErrors);
    }
 
    // Update a link action
@@ -163,34 +366,27 @@
        data[el.name] = el.value;
      }
 
-     let config = {
-       method: 'PATCH',
-       body: JSON.stringify(data),
-       headers: {
-         'Content-Type': 'application/json',
-       },
-     };
+     let config = getBasicFetchConfig();
+     config.method = 'PATCH';
+     config.body = JSON.stringify(data);
+     config.headers.set('Content-Type', 'application/json');
 
-     fetch(`/link/${updating.Name}`, config)
+     fetch(`/link/${updating}`, config)
+       .then(handleErrors)
        .then((r) => {
-         document.querySelector('#update').style.display = 'none';
-         form.reset();
-         delete updating;
+         switchCreateUpdate();
          updateLinks();
        })
-       .catch((r) => {
-         alert('Something went wrong, please refresh the page.');
-         console.error(r);
-       });
+       .catch(catchErrors);
    }
 
    // Update cancel action
    document.querySelector('#update').querySelector('.cancel').onclick = (e) => {
-     document.querySelector('#update').style.display = 'none';
-     let form = document.querySelector('#update').querySelector('form');
-     form.reset();
-     delete updating;
+     switchCreateUpdate();
    }
+
+   // Check if we are able to log the user in, if so, login
+   checkLogin();
 
    // Populate page with initial links
    updateLinks();

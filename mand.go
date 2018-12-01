@@ -19,12 +19,18 @@ type App struct {
 }
 
 type Config struct {
-	DBHost        string
-	DBPort        int
-	DBName        string
-	DBUser        string
-	DBPassword    string
-	DBDebug       bool
+	DBHost     string
+	DBPort     int
+	DBName     string
+	DBUser     string
+	DBPassword string
+	DBDebug    bool
+
+	ConnectURL      string
+	ConnectClientID string
+	ClientSecret    string
+	RedirectURL     string
+
 	EmptyRedirect string
 	NotFoundURL   string
 }
@@ -58,11 +64,21 @@ func main() {
 	// Automigrate for possible struct updates
 	mand.DB.AutoMigrate(&Link{})
 
+	connect(mand.Config.ConnectURL, mand.Config.ConnectClientID, mand.Config.ClientSecret, mand.Config.RedirectURL)
+
 	r := gin.Default()
 
+	// Static file serving
 	r.StaticFS("/admin", http.Dir("web"))
 
+	auth := r.Group("/auth")
+	{
+		auth.GET("/connect/callback", callbackController(mand))
+		auth.GET("/connect/login", loginController(mand))
+	}
+
 	link := r.Group("/link")
+	link.Use(connectMiddleware())
 	{
 		link.GET("/", getAllLinkController(mand))
 		link.POST("/", createLinkController(mand))
