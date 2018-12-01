@@ -59,7 +59,7 @@ func callbackController(a App) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token, err := connectConfig.Exchange(context.TODO(), c.Query("code"))
 		if err != nil {
-			log.Errorf("unable to exchange token, error: %s", err.Error())
+			log.Errorf("unable to exchange token \"%s\", error: %s", c.Query("code"), err.Error())
 			return
 		}
 
