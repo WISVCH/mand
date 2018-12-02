@@ -89,5 +89,5 @@ func main() {
 
 	// If it is an undefined route, perform a redirect
 	r.NoRoute(redirect(mand))
-	r.Run(":80")
+	r.Run(":8080")
 }

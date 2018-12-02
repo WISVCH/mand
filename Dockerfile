@@ -10,4 +10,6 @@ WORKDIR /srv
 COPY --from=builder /go/bin/mand /srv
 COPY ./web /srv/web
 
+RUN groupadd -r mand --gid=999 && useradd --no-log-init -r -g mand --uid=999 mand
+USER 999
 ENTRYPOINT ["/srv/mand"]
