@@ -30,6 +30,7 @@ type Config struct {
 	ConnectClientID string
 	ClientSecret    string
 	RedirectURL     string
+	AllowedGroup    string
 
 	EmptyRedirect string
 	NotFoundURL   string
@@ -64,7 +65,7 @@ func main() {
 	// Automigrate for possible struct updates
 	mand.DB.AutoMigrate(&Link{})
 
-	connect(mand.Config.ConnectURL, mand.Config.ConnectClientID, mand.Config.ClientSecret, mand.Config.RedirectURL)
+	connect(mand.Config.ConnectURL, mand.Config.ConnectClientID, mand.Config.ClientSecret, mand.Config.RedirectURL, mand.Config.AllowedGroup)
 
 	r := gin.Default()
 
@@ -78,7 +79,7 @@ func main() {
 	}
 
 	link := r.Group("/link")
-	link.Use(connectMiddleware())
+	link.Use(connectMiddleware(mand))
 	{
 		link.GET("/", getAllLinkController(mand))
 		link.POST("/", createLinkController(mand))

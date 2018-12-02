@@ -158,15 +158,15 @@
     </div>
   </body>
   <script>
-   // updating is used to store the name of the entry we're updating, we have to use this to write the updated link
-   let updating;
-   let token;
+    // updating is used to store the name of the entry we're updating, we have to use this to write the updated link
+    let updating;
+    let token;
 
-   document.querySelector('#update').style.display = 'none';
+    document.querySelector('#update').style.display = 'none';
 
-   // Set correct errors on incoming requests
-   const handleResponse = (r) => {
-     return r.json().then((json) => {
+    // Set correct errors on incoming requests
+    const handleResponse = (r) => {
+    return r.json().then((json) => {
        if (!r.ok) {
          const error = Object.assign({}, json, {
            status: r.status,
@@ -225,7 +225,7 @@
      }
    }
 
-   const checkLogin = function() {
+   const checkLogin = () => {
      // If there are no fetch parameters in the url, we have no parameters to do authentication with
      if (!location.search) {
        return;
@@ -256,7 +256,7 @@
    };
 
    // Render links on the page
-   const renderLinks = function(links) {
+   const renderLinks = (links) => {
      const linksEl = document.querySelector('#links');
      // Remove old links
      linksEl.querySelectorAll('div.link').forEach((l) => {
@@ -307,7 +307,7 @@
    };
 
    // Get all the links
-   const updateLinks = function(search = '') {
+   const updateLinks = (search = '') => {
      if (!token) {
        return;
      }

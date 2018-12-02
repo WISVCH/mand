@@ -13,8 +13,9 @@ import (
 var connectConfig oauth2.Config
 var provider oidc.Provider
 var verifier *oidc.IDTokenVerifier
+var allowedGroup string
 
-func connect(URL string, clientID string, clientSecret string, redirectURL string) {
+func connect(URL, clientID, clientSecret, redirectURL, allowedGroup string) {
 	ctx := context.Background()
 
 	provider, err := oidc.NewProvider(ctx, URL)
@@ -38,7 +39,7 @@ func connect(URL string, clientID string, clientSecret string, redirectURL strin
 	}
 }
 
-func connectMiddleware() gin.HandlerFunc {
+func connectMiddleware(a App) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if checkAuth(c.GetHeader("X-Auth")) {
 			c.Next()
@@ -97,7 +98,7 @@ func checkAuth(rawIDToken string) bool {
 	}
 
 	for _, group := range claims.Groups {
-		if group == "lanciedev" {
+		if group == allowedGroup {
 			return true
 		}
 	}

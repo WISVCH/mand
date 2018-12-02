@@ -1,14 +1,13 @@
-FROM golang:1.11-alpine AS build
-# RUN apk add bash ca-certificates git gcc g++ libc-dev
-RUN apk add ca-certificates git gcc g++
+FROM golang AS builder
 WORKDIR /go/src/github.com/wisvch/mand
 ENV GO111MODULE=on
 COPY . .
 RUN go mod download
-RUN go install
+RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go install
 
-FROM alpine
-COPY --from=build /go/bin/mand /bin/mand
-COPY ./web ./web
+FROM wisvch/debian:stretch-slim
+WORKDIR /srv
+COPY --from=builder /go/bin/mand /srv
+COPY ./web /srv/web
 
-ENTRYPOINT ["/bin/mand"]
+ENTRYPOINT ["/srv/mand"]
