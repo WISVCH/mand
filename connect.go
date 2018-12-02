@@ -43,7 +43,9 @@ func connectMiddleware() gin.HandlerFunc {
 		if checkAuth(c.GetHeader("X-Auth")) {
 			c.Next()
 		} else {
-			c.AbortWithStatus(http.StatusUnauthorized)
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"errorMessage": "Missing authentication",
+			})
 		}
 	}
 }
