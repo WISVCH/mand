@@ -140,7 +140,7 @@
             <input id="name" name="Name" type="text" value="" placeholder="Name" required/>
             <img alt="" src="/admin/to.svg"/>
             <input id="url" name="Redirect" type="URL" value="" placeholder="URL" required/>
-            <button class="submit">Create</button>
+            <button type="submit">Create</button>
           </form>
         </section>
 
@@ -149,8 +149,8 @@
             <input id="name" name="Name" type="text" value="" placeholder="Name" required/>
             <img alt="" src="/admin/to.svg"/>
             <input id="url" name="Redirect" type="URL" value="" placeholder="URL" required/>
-            <button class="cancel">Cancel</button>
-            <button class="submit">Save</button>
+            <button type="button">Cancel</button>
+            <button type="submit">Save</button>
           </form>
         </section>
       </div>
@@ -329,7 +329,7 @@
    })
 
    // Create a new link action
-   document.querySelector('#create').querySelector('.submit').onclick = (e) => {
+   document.querySelector('#create').querySelector('[type=submit]').onclick = (e) => {
      let form = document.querySelector('#create').querySelector('form');
      if (!form.reportValidity()) {
        return;
@@ -356,7 +356,7 @@
    }
 
    // Update a link action
-   document.querySelector('#update').querySelector('.submit').onclick = (e) => {
+   document.querySelector('#update').querySelector('[type=submit]').onclick = (e) => {
      let form = document.querySelector('#update').querySelector('form');
      if (!form.reportValidity()) {
        return;
@@ -383,7 +383,7 @@
    }
 
    // Update cancel action
-   document.querySelector('#update').querySelector('.cancel').onclick = (e) => {
+   document.querySelector('#update').querySelector('[type=button]').onclick = (e) => {
      switchCreateUpdate();
    }
 
