@@ -15,8 +15,10 @@ var provider oidc.Provider
 var verifier *oidc.IDTokenVerifier
 var allowedGroup string
 
-func connect(URL, clientID, clientSecret, redirectURL, allowedGroup string) {
+func connect(URL, clientID, clientSecret, redirectURL, group string) {
 	ctx := context.Background()
+
+	allowedGroup = group
 
 	provider, err := oidc.NewProvider(ctx, URL)
 	if err != nil {
