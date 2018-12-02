@@ -165,20 +165,28 @@
    document.querySelector('#update').style.display = 'none';
 
    // Set correct errors on incoming requests
-   const handleErrors = (r) => {
-     if (r.ok) {
-       return r;
-     }
-     if (r.status === 401) {
-       throw new Error(`Unauthorized: must be logged in.\n${r.url}`);
-     }
-     throw new Error(`Network response was not ok.\n${r.url}`);
+   const handleResponse = (r) => {
+     return r.json().then((json) => {
+       if (!r.ok) {
+         const error = Object.assign({}, json, {
+           status: r.status,
+           statusText: r.statusText,
+         });
+
+         return Promise.reject(error);
+       }
+       return json;
+     });
    }
 
    // Handle errors during request processing
    const catchErrors = (error) => {
+     const message = `
+       ${error.status} - ${error.statusText}\n
+       ${error.errorMessage}
+     `;
      console.error(error);
-     alert(error.message);
+     alert(message);
    }
 
    // Construct a basic config to be used for all fetch requests
@@ -228,10 +236,7 @@
 
      const url = `/auth/connect/callback?code=${code}`;
      fetch(url, {})
-       .then(handleErrors)
-       .then((r) => {
-         return r.json();
-       })
+       .then(handleResponse)
        .then((json) => {
          // Set authentication token and push logged in navigation state
          token = json.token;
@@ -288,8 +293,8 @@
            config.method = 'DELETE';
 
            fetch(`/link/${data.Name}`, config)
-             .then(handleErrors)
-             .then((r) => {
+             .then(handleResponse)
+             .then(() => {
                updateLinks();
              })
              .catch(catchErrors);
@@ -311,10 +316,7 @@
      config.headers.append('X-Search', search);
 
      fetch('/link', config)
-       .then(handleErrors)
-       .then((r) => {
-         return r.json();
-       })
+       .then(handleResponse)
        .then((json) => {
          renderLinks(json);
        })
@@ -345,8 +347,8 @@
      config.headers.set('Content-Type', 'application/json');
 
      fetch('/link', config)
-       .then(handleErrors)
-       .then((r) => {
+       .then(handleResponse)
+       .then(() => {
          form.reset();
          updateLinks();
        })
@@ -372,8 +374,8 @@
      config.headers.set('Content-Type', 'application/json');
 
      fetch(`/link/${updating}`, config)
-       .then(handleErrors)
-       .then((r) => {
+       .then(handleResponse)
+       .then(() => {
          switchCreateUpdate();
          updateLinks();
        })
