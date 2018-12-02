@@ -80,7 +80,7 @@ func createLinkController(a App) gin.HandlerFunc {
 			return
 		}
 
-		c.Status(http.StatusOK)
+		c.JSON(http.StatusOK, nil)
 	}
 }
 
@@ -113,7 +113,7 @@ func updateLinkController(a App) gin.HandlerFunc {
 			return
 		}
 
-		c.Status(http.StatusOK)
+		c.JSON(http.StatusOK, nil)
 	}
 }
 
@@ -137,6 +137,6 @@ func deleteLinkController(a App) gin.HandlerFunc {
 			return
 		}
 
-		c.Status(http.StatusOK)
+		c.JSON(http.StatusOK, nil)
 	}
 }
