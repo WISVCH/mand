@@ -19,7 +19,7 @@ type Link struct {
 // get all links, in alphabetical order
 func getAllLinkController(a App) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		links, err := a.getAllLink(c.GetHeader("X-Search"))
+		links, err := a.getAllLink(c.Query("search"))
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 				"errorMessage": fmt.Sprintf("Unable to retrieve links, error: %s", err.Error()),
