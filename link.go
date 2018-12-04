@@ -4,10 +4,15 @@ import (
 	"fmt"
 	"net/http"
 
+	"regexp"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
 )
+
+var linkNamePattern *regexp.Regexp = regexp.MustCompile("[a-zA-Z-0-9]+")
+var searchPattern *regexp.Regexp = regexp.MustCompile("[a-zA-Z-0-9]*")
 
 // Link type containing information for the redirect entry
 type Link struct {
@@ -19,6 +24,15 @@ type Link struct {
 // get all links, in alphabetical order
 func getAllLinkController(a App) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		search := c.Query("search")
+
+		if !searchPattern.Match([]byte(search)) {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"errorMessage": "Incorrect search, must use pattern '[a-zA-Z0-9]*'",
+			})
+			return
+		}
+
 		links, err := a.getAllLink(c.Query("search"))
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
@@ -32,28 +46,6 @@ func getAllLinkController(a App) gin.HandlerFunc {
 	}
 }
 
-// get link
-func getLinkController(a App) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		name := c.Param("Name")
-
-		var link Link
-		err := a.DB.Model(&Link{}).
-			Where("name = ?", name).
-			Find(&link).
-			Error
-		if err != nil {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-				"errorMessage": fmt.Sprintf("Unable to retrieve link, error: %s", err.Error()),
-			})
-			log.Errorf("unable to retrieve link: %s, error: %s", name, err.Error())
-			return
-		}
-
-		c.JSON(http.StatusOK, link)
-	}
-}
-
 // create a link, required fields are name and redirect
 func createLinkController(a App) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -63,6 +55,13 @@ func createLinkController(a App) gin.HandlerFunc {
 			log.Errorf("unable to parse request, error: %s", err.Error())
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 				"errorMessage": fmt.Sprintf("Unable to parse request, error: %s", err.Error()),
+			})
+			return
+		}
+
+		if !linkNamePattern.Match([]byte(link.Name)) {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"errorMessage": "Incorrect link name, must use pattern '[a-zA-Z0-9]+'",
 			})
 			return
 		}
@@ -89,6 +88,13 @@ func updateLinkController(a App) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get path param Name
 		name := c.Param("Name")
+
+		if !linkNamePattern.Match([]byte(name)) {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"errorMessage": "Incorrect link name, must use pattern '[a-zA-Z0-9]+'",
+			})
+			return
+		}
 
 		// Get link body
 		link, err := getLinkFromContext(c)
@@ -122,6 +128,13 @@ func deleteLinkController(a App) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get path param Name
 		name := c.Param("Name")
+
+		if !linkNamePattern.Match([]byte(name)) {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"errorMessage": "Incorrect link name, must use pattern '[a-zA-Z0-9]+'",
+			})
+			return
+		}
 
 		// Delete link on Name
 		err := a.DB.Model(&Link{}).
