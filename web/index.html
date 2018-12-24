@@ -137,7 +137,7 @@
 
         <section id="create">
           <form action="javascript:void(0);">
-            <input id="name" name="Name" type="text" value="" placeholder="Name" required/>
+            <input id="name" name="Name" type="text" value="" pattern="[a-zA-Z0-9]+" placeholder="Name" required/>
             <img alt="" src="/admin/to.svg"/>
             <input id="url" name="Redirect" type="URL" value="" placeholder="URL" required/>
             <button type="submit">Create</button>
@@ -146,7 +146,7 @@
 
         <section id="update">
           <form action="javascript:void(0);">
-            <input id="name" name="Name" type="text" value="" placeholder="Name" required/>
+            <input id="name" name="Name" type="text" value="" pattern="[a-zA-Z0-9]+" placeholder="Name" required/>
             <img alt="" src="/admin/to.svg"/>
             <input id="url" name="Redirect" type="URL" value="" placeholder="URL" required/>
             <button type="button">Cancel</button>
@@ -194,7 +194,7 @@
      let headers = new Headers();
 
      if (token) {
-       headers.append('X-Auth', token);
+       headers.append('Authorization', `Bearer ${token}`);
      }
 
      return config = {
@@ -266,13 +266,27 @@
      // Add each link to the dom, can be done better by first building link elements and then adding
      links.forEach((l) => {
        let link = document.createElement('div');
-       link.innerHTML = `
-         <span>${l.Name}</span>
-         <div>
-           <img src="/admin/to.svg"/>
-         </div>
-         <a href="${l.Redirect}">${l.Redirect}</a>
-       `;
+
+       let name = document.createElement('span');
+       let href = document.createElement('a');
+       let to = document.createElement('div');
+       let img = document.createElement('img');
+       name.textContent = l.Name;
+
+       const checks = ['https://', 'http://'];
+       if (l.Redirect.indexOf(checks[0]) === -1 && l.Redirect.indexOf(checks[1]) === -1) {
+         return;
+       }
+       const url = new URL(l.Redirect);
+       href.textContent = url.href;
+       href.href = url.href;
+       href.target = '_blank';
+       img.src = '/admin/to.svg';
+
+       to.appendChild(img);
+       link.appendChild(name);
+       link.appendChild(to);
+       link.appendChild(href);
        link.classList.add('link');
        link.data = l;
 
@@ -313,9 +327,8 @@
      }
 
      let config = getBasicFetchConfig();
-     config.headers.append('X-Search', search);
 
-     fetch('/link', config)
+     fetch(`/link?search=${search}`, config)
        .then(handleResponse)
        .then((json) => {
          renderLinks(json);
@@ -324,9 +337,15 @@
    };
 
    // The search action
-   document.querySelector('#search').querySelector('input').addEventListener('input', (e) => {
+   const checkSearch = (e) => {
+     searchPattern = new RegExp(/^[a-zA-Z0-9]*$/);
+     if (!searchPattern.test(e.target.value)) {
+       e.target.value = e.target.value.replace(e.data, '');
+       return;
+     }
      updateLinks(e.target.value);
-   })
+   };
+   document.querySelector('#search').querySelector('input').addEventListener('input', checkSearch);
 
    // Create a new link action
    document.querySelector('#create').querySelector('[type=submit]').onclick = (e) => {
