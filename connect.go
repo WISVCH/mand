@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"net/http"
+	"strings"
 
 	"github.com/coreos/go-oidc"
 	"github.com/gin-gonic/gin"
@@ -43,13 +44,25 @@ func connect(URL, clientID, clientSecret, redirectURL, group string) {
 
 func connectMiddleware(a App) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if checkAuth(c.GetHeader("X-Auth")) {
-			c.Next()
-		} else {
+		authHeader := c.GetHeader("authorization")
+		auth := strings.Split(authHeader, " ")
+
+		if len(auth) != 2 || auth[0] != "Bearer" {
+			log.Errorf("Wrong authorization header, was %s", authHeader)
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"errorMessage": "Missing authentication",
+				"errorMessage": "Incorrect authorization header",
 			})
+			return
 		}
+
+		if checkAuth(auth[1]) {
+			c.Next()
+			return
+		}
+
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"errorMessage": "Missing authentication",
+		})
 	}
 }
 

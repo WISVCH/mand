@@ -46,8 +46,8 @@ func getLinkFromContext(c *gin.Context) (*Link, error) {
 		return nil, err
 	}
 
-	if u.Scheme == "" {
-		u.Scheme = "https:"
+	if u.Scheme != "http" && u.Scheme != "https" {
+		u.Scheme = "https"
 		link.Redirect = u.String()
 	}
 
