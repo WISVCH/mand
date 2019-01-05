@@ -19,12 +19,15 @@ type App struct {
 }
 
 type Config struct {
-	DBHost     string
-	DBPort     int
-	DBName     string
-	DBUser     string
-	DBPassword string
-	DBDebug    bool
+	DBHost             string
+	DBPort             int
+	DBName             string
+	DBUser             string
+	DBPassword         string
+	DBOptions          string
+	DBConnectionString string
+
+	DBDebug bool
 
 	ConnectURL      string
 	ConnectClientID string
@@ -54,7 +57,12 @@ func main() {
 		log.Fatalf("unable to parse environment variables, error: %s", err.Error())
 	}
 
-	mand.DB, err = gorm.Open("postgres", fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", mand.Config.DBHost, mand.Config.DBPort, mand.Config.DBUser, mand.Config.DBPassword, mand.Config.DBName))
+	// Use the config variables, otherwise use the connectionString
+	connectionString := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s %s", mand.Config.DBHost, mand.Config.DBPort, mand.Config.DBUser, mand.Config.DBPassword, mand.Config.DBName, mand.Config.DBOptions)
+	if mand.Config.DBConnectionString != "" {
+		connectionString = mand.Config.DBConnectionString
+	}
+	mand.DB, err = gorm.Open("postgres", connectionString)
 	if err != nil {
 		log.Fatalf("unable to connect to database, error: %s", err.Error())
 	}
