@@ -77,6 +77,16 @@ func main() {
 
 	r := gin.Default()
 
+	// Set up health check endpoint
+	r.GET("/healthz", func(c *gin.Context) {
+		if err = mand.DB.DB().Ping(); err != nil {
+			log.Printf("database ping failed: %v", err)
+			c.String(http.StatusInternalServerError, "database ping failed")
+		} else {
+			c.String(http.StatusOK, "ok")
+		}
+	})
+
 	// Static file serving
 	r.StaticFS("/admin", http.Dir("web"))
 
