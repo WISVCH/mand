@@ -80,7 +80,7 @@ func main() {
 	// Set up health check endpoint
 	r.GET("/healthz", func(c *gin.Context) {
 		if err = mand.DB.DB().Ping(); err != nil {
-			log.Printf("database ping failed: %v", err)
+			log.Printf("database ping failed: %s", err.Error())
 			c.String(http.StatusInternalServerError, "database ping failed")
 		} else {
 			c.String(http.StatusOK, "ok")
