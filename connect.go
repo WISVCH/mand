@@ -38,7 +38,7 @@ func connect(URL, clientID, clientSecret, redirectURL, group string) {
 		Endpoint: provider.Endpoint(),
 
 		// "openid" is a required scope for OpenID Connect flows.
-		Scopes: []string{oidc.ScopeOpenID, "ldap", "ldap_groups"},
+		Scopes: []string{oidc.ScopeOpenID, "ldap"},
 	}
 }
 
