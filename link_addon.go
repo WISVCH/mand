@@ -37,9 +37,6 @@ func getLinkFromContext(c *gin.Context) (*Link, error) {
 	// Lowercase name of the link
 	link.Name = strings.ToLower(link.Name)
 
-	// ShouldBind() sets all values to empty values (0001-01-01 00:00:00 +0000 UTC), deletedAt should be nil, otherwise the link is seen as deleted
-	link.DeletedAt = nil
-
 	// Check correctness of the destination url
 	u, err := url.Parse(link.Redirect)
 	if err != nil {

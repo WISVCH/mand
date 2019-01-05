@@ -7,7 +7,6 @@ import (
 	"regexp"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -16,7 +15,6 @@ var searchPattern *regexp.Regexp = regexp.MustCompile("[a-zA-Z-0-9]*")
 
 // Link type containing information for the redirect entry
 type Link struct {
-	gorm.Model
 	Name     string `gorm:"unique;not null" form:"name" binding:"required"`
 	Redirect string `gorm:"not null" form:"redirect" binding:"required"`
 }
@@ -139,7 +137,6 @@ func deleteLinkController(a App) gin.HandlerFunc {
 		// Delete link on Name
 		err := a.DB.Model(&Link{}).
 			Where("name = ?", name).
-			Unscoped().
 			Delete(&Link{}).
 			Error
 		if err != nil {
