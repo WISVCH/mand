@@ -75,7 +75,9 @@ func main() {
 
 	connect(mand.Config.ConnectURL, mand.Config.ConnectClientID, mand.Config.ClientSecret, mand.Config.RedirectURL, mand.Config.AllowedGroup)
 
-	r := gin.Default()
+	// Same as the Default() instance without the logger
+	r := gin.New()
+	r.Use(gin.Recovery())
 
 	// Set up health check endpoint
 	r.GET("/healthz", func(c *gin.Context) {

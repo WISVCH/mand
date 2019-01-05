@@ -328,7 +328,13 @@
 
      let config = getBasicFetchConfig();
 
-     fetch(`/link?search=${search}`, config)
+     // Only add a search string when searching
+     let searchString = '';
+     if (search) {
+       searchString = `?search=${search}`;
+     }
+
+     fetch(`/link/${searchString}`, config)
        .then(handleResponse)
        .then((json) => {
          renderLinks(json);
@@ -365,7 +371,7 @@
      config.body = JSON.stringify(data);
      config.headers.set('Content-Type', 'application/json');
 
-     fetch('/link', config)
+     fetch('/link/', config)
        .then(handleResponse)
        .then(() => {
          form.reset();
