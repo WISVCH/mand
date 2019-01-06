@@ -47,14 +47,14 @@ func main() {
 	if !os.IsNotExist(err) {
 		err := godotenv.Load("mand.env")
 		if err != nil {
-			log.Fatalf("unable to read .env file, error: %s", err.Error())
+			log.Fatalf("unable to read .env file, error: %s", err)
 		}
 	}
 
 	// Load environment variables for config
 	err = envconfig.Process("", &mand.Config)
 	if err != nil {
-		log.Fatalf("unable to parse environment variables, error: %s", err.Error())
+		log.Fatalf("unable to parse environment variables, error: %s", err)
 	}
 
 	// Use the config variables, otherwise use the connectionString
@@ -64,7 +64,7 @@ func main() {
 	}
 	mand.DB, err = gorm.Open("postgres", connectionString)
 	if err != nil {
-		log.Fatalf("unable to connect to database, error: %s", err.Error())
+		log.Fatalf("unable to connect to database, error: %s", err)
 	}
 	defer mand.DB.Close()
 
@@ -82,7 +82,7 @@ func main() {
 	// Set up health check endpoint
 	r.GET("/healthz", func(c *gin.Context) {
 		if err = mand.DB.DB().Ping(); err != nil {
-			log.Printf("database ping failed: %s", err.Error())
+			log.Printf("database ping failed: %s", err)
 			c.String(http.StatusInternalServerError, "database ping failed")
 		} else {
 			c.String(http.StatusOK, "ok")

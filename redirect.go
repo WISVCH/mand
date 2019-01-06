@@ -23,7 +23,7 @@ func redirect(a App) gin.HandlerFunc {
 			Find(&link).
 			Error
 		if err != nil {
-			log.Errorf("unable to retrieve link: '%s', error: %s", c.Request.RequestURI, err.Error())
+			log.Errorf("unable to retrieve link: '%s', error: %s", c.Request.RequestURI, err)
 			if gorm.IsRecordNotFoundError(err) {
 				// 404 redirect
 				c.Redirect(http.StatusFound, a.Config.NotFoundURL)

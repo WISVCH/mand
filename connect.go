@@ -23,7 +23,7 @@ func connect(URL, clientID, clientSecret, redirectURL, group string) {
 
 	provider, err := oidc.NewProvider(ctx, URL)
 	if err != nil {
-		log.Fatalf("unable to create new authentication provider, error: %s", err.Error())
+		log.Fatalf("unable to create new authentication provider, error: %s", err)
 	}
 
 	verifier = provider.Verifier(&oidc.Config{ClientID: clientID})
@@ -77,7 +77,7 @@ func callbackController(a App) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token, err := connectConfig.Exchange(context.TODO(), c.Query("code"))
 		if err != nil {
-			log.Errorf("unable to exchange token \"%s\", error: %s", c.Query("code"), err.Error())
+			log.Errorf("unable to exchange token \"%s\", error: %s", c.Query("code"), err)
 			return
 		}
 
@@ -100,7 +100,7 @@ func callbackController(a App) gin.HandlerFunc {
 func checkAuth(rawIDToken string) bool {
 	idToken, err := verifier.Verify(context.TODO(), rawIDToken)
 	if err != nil {
-		log.Errorf("unable to verify id_token, error: %s", err.Error())
+		log.Errorf("unable to verify id_token, error: %s", err)
 		return false
 	}
 
@@ -108,7 +108,7 @@ func checkAuth(rawIDToken string) bool {
 		Groups []string `json:"ldap_groups"`
 	}
 	if err := idToken.Claims(&claims); err != nil {
-		log.Errorf("unable to read ldap_groups from id_token, error: %s", err.Error())
+		log.Errorf("unable to read ldap_groups from id_token, error: %s", err)
 		return false
 	}
 

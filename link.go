@@ -34,9 +34,9 @@ func getAllLinkController(a App) gin.HandlerFunc {
 		links, err := a.getAllLink(c.Query("search"))
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-				"errorMessage": fmt.Sprintf("Unable to retrieve links, error: %s", err.Error()),
+				"errorMessage": fmt.Sprintf("Unable to retrieve links, error: %s", err),
 			})
-			log.Errorf("unable to retrieve all links, error: %s", err.Error())
+			log.Errorf("unable to retrieve all links, error: %s", err)
 			return
 		}
 
@@ -50,9 +50,9 @@ func createLinkController(a App) gin.HandlerFunc {
 		// Get link body
 		link, err := getLinkFromContext(c)
 		if err != nil {
-			log.Errorf("unable to parse request, error: %s", err.Error())
+			log.Errorf("unable to parse request, error: %s", err)
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-				"errorMessage": fmt.Sprintf("Unable to parse request, error: %s", err.Error()),
+				"errorMessage": fmt.Sprintf("Unable to parse request, error: %s", err),
 			})
 			return
 		}
@@ -68,12 +68,12 @@ func createLinkController(a App) gin.HandlerFunc {
 		err = a.createLink(link)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-				"errorMessage": fmt.Sprintf("Unable to create link, error: %s", err.Error()),
+				"errorMessage": fmt.Sprintf("Unable to create link, error: %s", err),
 			})
 			log.WithFields(log.Fields{
 				"name":     link.Name,
 				"redirect": link.Redirect,
-			}).Errorf("unable to create link, error: %s", err.Error())
+			}).Errorf("unable to create link, error: %s", err)
 			return
 		}
 
@@ -97,9 +97,9 @@ func updateLinkController(a App) gin.HandlerFunc {
 		// Get link body
 		link, err := getLinkFromContext(c)
 		if err != nil {
-			log.Errorf("unable to parse request, error: %s", err.Error())
+			log.Errorf("unable to parse request, error: %s", err)
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-				"errorMessage": fmt.Sprintf("Unable to parse request, error: %s", err.Error()),
+				"errorMessage": fmt.Sprintf("Unable to parse request, error: %s", err),
 			})
 			return
 		}
@@ -108,12 +108,12 @@ func updateLinkController(a App) gin.HandlerFunc {
 		err = a.updateLink(name, link)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-				"errorMessage": fmt.Sprintf("Unable to update link, error: %s", err.Error()),
+				"errorMessage": fmt.Sprintf("Unable to update link, error: %s", err),
 			})
 			log.WithFields(log.Fields{
 				"name":     link.Name,
 				"redirect": link.Redirect,
-			}).Errorf("unable to update link, error: %s", err.Error())
+			}).Errorf("unable to update link, error: %s", err)
 			return
 		}
 
@@ -141,9 +141,9 @@ func deleteLinkController(a App) gin.HandlerFunc {
 			Error
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-				"errorMessage": fmt.Sprintf("Unable to delete link, error: %s", err.Error()),
+				"errorMessage": fmt.Sprintf("Unable to delete link, error: %s", err),
 			})
-			log.Errorf("unable to delete link with name=%s, error: %s", name, err.Error())
+			log.Errorf("unable to delete link with name=%s, error: %s", name, err)
 			return
 		}
 
