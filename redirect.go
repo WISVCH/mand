@@ -19,7 +19,7 @@ func redirect(a App) gin.HandlerFunc {
 
 		var link Link
 		err := a.DB.Model(&Link{}).
-			Where("name = ?", path).
+			Where("name = ?", strings.ToLower(path)).
 			Find(&link).
 			Error
 		if err != nil {
