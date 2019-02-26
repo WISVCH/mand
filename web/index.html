@@ -58,12 +58,14 @@
        display: none;
      }
 
-     #content > section {
+     #content > section,
+     #updateModal > section {
        margin: 16px;
      }
 
      #content > #search,
-     #content > section > form {
+     #content > section > form,
+     #updateModal > section > form {
        display: flex;
      }
 
@@ -112,8 +114,23 @@
        background-color: var(--secondary-color);
      }
 
-     #update {
+     #updateModal {
        display: none;
+       position: absolute;
+       top: 0;
+       left: 0;
+       background: rgba(0, 0, 0, 0.5);
+       width: 100vw;
+       height: 100vh;
+     }
+
+     #updateModal > section {
+       background: white;
+       margin: auto;
+     }
+
+     #updateModal > section > form {
+       margin: 16px;
      }
     </style>
   </head>
@@ -132,9 +149,6 @@
           <input type="text" name="search" value="" placeholder="Search"/>
         </section>
 
-        <section id="links">
-        </section>
-
         <section id="create">
           <form action="javascript:void(0);">
             <input id="name" name="Name" type="text" value="" pattern="[a-zA-Z0-9]+" placeholder="Name" required/>
@@ -144,15 +158,21 @@
           </form>
         </section>
 
-        <section id="update">
-          <form action="javascript:void(0);">
-            <input id="name" name="Name" type="text" value="" pattern="[a-zA-Z0-9]+" placeholder="Name" required/>
-            <img alt="" src="/admin/to.svg"/>
-            <input id="url" name="Redirect" type="URL" value="" placeholder="URL" required/>
-            <button type="button">Cancel</button>
-            <button type="submit">Save</button>
-          </form>
+        <section id="links">
         </section>
+
+        <div id="updateModal">
+          <section id="update">
+            <form action="javascript:void(0);">
+              <input id="name" name="Name" type="text" value="" pattern="[a-zA-Z0-9]+" placeholder="Name" required/>
+              <img alt="" src="/admin/to.svg"/>
+              <input id="url" name="Redirect" type="URL" value="" placeholder="URL" required/>
+              <button type="button">Cancel</button>
+              <button type="submit">Save</button>
+            </form>
+          </section>
+        </div>
+
       </div>
 
     </div>
@@ -162,7 +182,7 @@
     let updating;
     let token;
 
-    document.querySelector('#update').style.display = 'none';
+    document.querySelector('#updateModal').style.display = 'none';
 
     // Set correct errors on incoming requests
     const handleResponse = (r) => {
@@ -206,6 +226,7 @@
    const switchCreateUpdate = (updateData) => {
      let create = document.querySelector('#create');
      let update = document.querySelector('#update');
+     let updateModal = document.querySelector('#updateModal');
      create.querySelector('form').reset();
      update.querySelector('form').reset();
 
@@ -217,11 +238,11 @@
          i.value = updateData[i.name];
        }
 
-       create.style.display = 'none';
-       update.style.display = 'block';
+       /* create.style.display = 'none'; */
+       updateModal.style.display = 'flex';
      } else {
-       create.style.display = 'block';
-       update.style.display = 'none';
+       /* create.style.display = 'block'; */
+       updateModal.style.display = 'none';
      }
    }
 
