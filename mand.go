@@ -109,5 +109,7 @@ func main() {
 
 	// If it is an undefined route, perform a redirect
 	r.NoRoute(redirect(mand))
-	r.Run(":8080")
+	if err = r.Run(":8080"); err != nil {
+		log.Fatalf("run exited with error: %s", err)
+	}
 }
