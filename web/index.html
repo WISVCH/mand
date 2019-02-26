@@ -187,17 +187,19 @@
 
     // Set correct errors on incoming requests
     const handleResponse = (r) => {
-    return r.json().then((json) => {
-       if (!r.ok) {
-         const error = Object.assign({}, json, {
-           status: r.status,
-           statusText: r.statusText,
-         });
+      if (!r.ok) {
+        const error = Object.assign({}, {
+          status: r.status,
+          statusText: r.statusText,
+          errorMessage: "Request failed",
+        });
 
-         return Promise.reject(error);
-       }
-       return json;
-     });
+        return Promise.reject(error);
+      }
+
+      return r.json().then((json) => {
+        return json;
+      });
    }
 
    // Handle errors during request processing
