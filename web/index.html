@@ -102,7 +102,7 @@
        word-break: break-all;
      }
 
-     .link > :nth-child(-n+3) {
+     .link > :nth-child(n+2):nth-child(-n+4) {
        flex: 1;
      }
 
@@ -291,11 +291,13 @@
      links.forEach((l) => {
        let link = document.createElement('div');
 
+       let visits = document.createElement('span');
        let name = document.createElement('span');
        let href = document.createElement('a');
        let to = document.createElement('div');
        let img = document.createElement('img');
        name.textContent = l.Name;
+       visits.textContent = l.Visits;
 
        const checks = ['https://', 'http://'];
        if (l.Redirect.indexOf(checks[0]) === -1 && l.Redirect.indexOf(checks[1]) === -1) {
@@ -308,6 +310,7 @@
        img.src = '/admin/to.svg';
 
        to.appendChild(img);
+       link.appendChild(visits);
        link.appendChild(name);
        link.appendChild(to);
        link.appendChild(href);
