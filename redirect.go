@@ -17,9 +17,11 @@ func redirect(a App) gin.HandlerFunc {
 			c.Redirect(http.StatusFound, a.Config.EmptyRedirect)
 		}
 
+		linkPath := strings.ToLower(path)
+
 		var link Link
 		err := a.DB.Model(&Link{}).
-			Where("name = ?", strings.ToLower(path)).
+			Where("name = ?", linkPath).
 			Find(&link).
 			Error
 		if err != nil {
@@ -31,6 +33,11 @@ func redirect(a App) gin.HandlerFunc {
 				c.AbortWithStatus(http.StatusInternalServerError)
 			}
 			return
+		}
+
+		err = a.DB.Exec("UPDATE links SET visits = visits + 1 WHERE name = ?", linkPath).Error
+		if err != nil {
+			log.Errorf("unable to update visiting counter: '%s', error: %s", c.Request.RequestURI, err)
 		}
 
 		c.Redirect(http.StatusFound, link.Redirect)
