@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -11,7 +12,14 @@ import (
 
 func redirect(a App) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		path := strings.Split(c.Request.RequestURI[1:], "/")[0]
+		// Parse url to split it into components
+		parsedURL, err := url.ParseRequestURI(c.Request.RequestURI)
+		if err != nil {
+			log.Errorf("unable to parse request uri, error: %s", err)
+		}
+
+		// Only use the path for redirecting
+		path := strings.Split(parsedURL.Path[1:], "/")[0]
 
 		if path == "" || path == "/" {
 			c.Redirect(http.StatusFound, a.Config.EmptyRedirect)
@@ -20,7 +28,7 @@ func redirect(a App) gin.HandlerFunc {
 		linkPath := strings.ToLower(path)
 
 		var link Link
-		err := a.DB.Model(&Link{}).
+		err = a.DB.Model(&Link{}).
 			Where("name = ?", linkPath).
 			Find(&link).
 			Error
