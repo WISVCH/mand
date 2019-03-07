@@ -287,8 +287,18 @@
        linksEl.removeChild(l);
      });
 
+     const host = window.location.host
+
+     // Put all the links to the host (self) first. The links are already alphabetically sorted.
      // Add each link to the dom, can be done better by first building link elements and then adding
-     links.forEach((l) => {
+     links.reduce((collection, link) => {
+       if (link.Redirect.indexOf(host) > -1) {
+         collection.unshift(link);
+       } else {
+         collection.push(link);
+       }
+       return collection;
+     }, []).forEach((l) => {
        let link = document.createElement('div');
 
        let visits = document.createElement('span');
