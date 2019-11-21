@@ -15,7 +15,7 @@ var searchPattern *regexp.Regexp = regexp.MustCompile("[a-zA-Z-0-9]*")
 
 // Link type containing information for the redirect entry
 type Link struct {
-	Name     string `gorm:"primary_key" form:"name" binding:"required"`
+	Name     string `gorm:"not null;unique_index" form:"name" binding:"required"`
 	Redirect string `gorm:"not null" form:"redirect" binding:"required"`
 	Visits   int    `gorm:"default:0"`
 }
