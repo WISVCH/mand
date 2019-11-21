@@ -12,7 +12,6 @@ import (
 )
 
 var connectConfig oauth2.Config
-var provider oidc.Provider
 var verifier *oidc.IDTokenVerifier
 var allowedGroup string
 
@@ -21,6 +20,7 @@ func connect(URL, clientID, clientSecret, redirectURL, group string) {
 
 	allowedGroup = group
 
+	var err error
 	provider, err := oidc.NewProvider(ctx, URL)
 	if err != nil {
 		log.Fatalf("unable to create new authentication provider, error: %s", err)

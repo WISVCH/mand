@@ -2,181 +2,183 @@
   <head>
     <meta charset="utf-8" />
 
-    <title>Mand - Redirect URL's</title>
-    <meta name="description" content="Redirect subpages to URL's" />
+    <title>Mand - Redirect users</title>
+    <meta name="description" content="Redirect users" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="shortcut icon" href="/admin/favicon.png" type="image/x-icon">
     <style>
      body {
-       margin: 0px;
-       font-family: "Helvetica Neue", "Calibri Light", Roboto, sans-serif;
-       -webkit-font-smoothing: antialiased;
-       -moz-osx-font-smoothing: grayscale;
-       font-size: 16px;
-       letter-spacing: 0.02em;
-
-       --primary-color: #40556a;
-       --secondary-color: #e7ebf1;
+         margin: 0px;
+         font-family: "Helvetica Neue", "Calibri Light", Roboto, sans-serif;
+         -webkit-font-smoothing: antialiased;
+         -moz-osx-font-smoothing: grayscale;
+         font-size: 16px;
+         letter-spacing: 0.02em;
      }
 
-     body > div {
-       display: flex;
-       flex-direction: column;
-       max-width: 800px;
-       height: 100vh;
-       margin: 0 auto;
+     .on-login {
+         display: none;
      }
 
-     body > div > h1,
-     #login {
-       text-align: center;
-     }
+     /* #updateModal { */
+     /* display: none; */
+     /* position: fixed; */
+     /* top: 0; */
+     /* left: 0; */
+     /* background: rgba(0, 0, 0, 0.5); */
+     /* width: 100vw; */
+     /* height: 100vh; */
+     /* } */
+     /*  */
+     /* #updateModal > section { */
+     /* background: white; */
+     /* width: 800px; */
+     /* margin: auto; */
+     /* z-index: 10; */
+     /* border-radius: 4px; */
+     /* } */
 
-     h1 {
-       color: var(--primary-color);
-       text-decoration: underline;
-     }
-
-     #login,
-     #login > section,
-     #content {
-       display: flex;
-       flex: 1;
-     }
-
-     #login a {
-       margin: auto;
-       background-color: var(--primary-color);
-       color: #ffffff;
-       padding: 16px;
-       border-radius: 2px;
-     }
-
-     #content {
-       display: none;
-     }
-
-     #content > section,
-     #updateModal > section {
-       margin: 16px 0;
-     }
-
-     #content > #search,
-     #content > section > form,
-     #updateModal > section > form {
-       display: flex;
-     }
-
-     img {
-       height: 24px;
-       width: 24px;
-     }
-
-     input {
-       flex: 1;
-       border: none;
-       margin: 0 4px;
-       font-size: 16px;
-       border-bottom: solid 2px var(--primary-color);
-     }
-
-     button {
-       margin: auto 0 auto 4px;
-       background-color: var(--primary-color);
-       color: #ffffff;
-       padding: 8px;
-       border-radius: 2px;
-       border: none;
-     }
-
-     .link {
-       padding: 8px;
-       display: flex;
-       justify-content: space-between;
-       text-align: center;
-     }
-
-     .link a {
-       word-break: break-all;
-     }
-
-     .link > :nth-child(n+2):nth-child(-n+4) {
-       flex: 1;
-     }
-
-     .link > img {
-       margin: 0 0 0 4px;
-     }
-
-     .link:nth-of-type(2n-1) {
-       background-color: var(--secondary-color);
-     }
-
-     #updateModal {
-       display: none;
-       position: fixed;
-       top: 0;
-       left: 0;
-       background: rgba(0, 0, 0, 0.5);
-       width: 100vw;
-       height: 100vh;
-     }
-
-     #updateModal > section {
-       background: white;
-       width: 800px;
-       margin: auto;
-     }
-
-     #updateModal > section > form {
-       margin: 16px;
-     }
+     /* #updateModal > section > form { */
+     /* margin: 16px; */
+     /* } */
     </style>
   </head>
   <body>
-    <div>
-      <h1>Mand - Redirect URL's</h1>
+      <section class="section has-text-centered tile is-paddingless">
+          <div class="tile is-parent is-vertical">
+              <article class="tile is-child notification is-link">
+                  <p class="title">Mand</p>
+                  <p class="subtitle">Redirect users</p>
+              </article>
+          </div>
+      </section>
 
-      <div id="login">
-        <section>
-          <a href="/auth/connect/login">Log in with CH Connect</a>
-        </section>
-      </div>
+      <section class="section has-text-centered" id="login">
+          <a class="button is-large is-link is-outlined" href="/auth/connect/login">Log in with CH Connect</a>
+      </section>
 
-      <div id="content">
-        <section id="search">
-          <input type="text" name="search" value="" placeholder="Search"/>
-        </section>
+      <section class="section on-login" id="search">
+          <div class="columns is-centered">
+              <div class="column is-half">
+                  <div class="field">
+                      <div class="control is-expanded has-icons-left">
+                          <input class="input" type="text" name="search" value="" placeholder="Search"/>
+                          <span class="icon is-small is-left">
+                              <i class="fas fa-tag"></i>
+                          </span>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </section>
 
-        <section id="create">
-          <form action="javascript:void(0);">
-            <input id="name" name="Name" type="text" value="" pattern="[a-zA-Z0-9]+" placeholder="Name" required/>
-            <img alt="" src="/admin/to.svg"/>
-            <input id="url" name="Redirect" type="URL" value="" placeholder="URL" required/>
-            <button type="submit">Create</button>
-          </form>
-        </section>
+      <section class="section on-login" id="create">
+          <div class="columns is-centered">
+              <form class="column is-half" action="javascript:void(0);">
 
-        <section id="links">
-        </section>
+                  <div class="field is-horizontal">
+                      <div class="field-body">
+                          <div class="field">
+                              <p class="control is-expanded has-icons-left">
+                                  <input id="name" class="input" name="Name" type="text" value="" pattern="[a-zA-Z0-9]+" placeholder="Name" required/>
+                                  <span class="icon is-small is-left">
+                                      <i class="fas fa-tag"></i>
+                                  </span>
+                              </p>
+                          </div>
+                          <div class="field">
+                              <p class="control is-expanded has-icons-left">
+                                  <input id="url" class="input" name="Redirect" type="URL" value="" placeholder="URL" required/>
+                                  <span class="icon is-small is-left">
+                                      <i class="fas fa-globe"></i>
+                                  </span>
+                              </p>
+                          </div>
+                          <button class="button is-link" type="submit">Create</button>
+                      </div>
+                  </div>
+              </form>
+          </div>
+      </section>
 
-        <div id="updateModal">
-          <section id="update">
-            <form action="javascript:void(0);">
-              <input id="name" name="Name" type="text" value="" pattern="[a-zA-Z0-9]+" placeholder="Name" required/>
-              <img alt="" src="/admin/to.svg"/>
-              <input id="url" name="Redirect" type="URL" value="" placeholder="URL" required/>
-              <button type="button">Cancel</button>
-              <button type="submit">Save</button>
-            </form>
+      <section class="section on-login" id="links">
+          <div class="columns is-centered">
+              <div class="column is-half">
+                  <table class="table is-fullwidth is-hoverable">
+                      <thead>
+                          <tr>
+                              <th><abbr title="Visits">#</abbr></th>
+                              <th>From</th>
+                              <th>To</th>
+                              <th></th>
+                              <th></th>
+                          </tr>
+                      </thead>
+                      <tfoot>
+                          <tr>
+                              <th><abbr title="Visits">#</abbr></th>
+                              <th>From</th>
+                              <th>To</th>
+                              <th></th>
+                              <th></th>
+                          </tr>
+                      </tfoot>
+                      <tbody id="linksbody">
+                      </tbody>
+                  </table>
+              </div>
+          </div>
+      </section>
+
+      <div class="modal" id="updateModal">
+          <div class="modal-background"></div>
+          <section class="modal-card" id="update">
+              <header class="modal-card-head">
+                  <p class="modal-card-title">Edit</p>
+              </header>
+
+              <section class="modal-card-body">
+                  <form class="column is-marginless" action="javascript:void(0);">
+
+                      <div class="field is-horizontal">
+                          <div class="field-body">
+                              <div class="field">
+                                  <p class="control is-expanded has-icons-left">
+                                      <input id="name" class="input" name="Name" type="text" value="" pattern="[a-zA-Z0-9]+" placeholder="Name" required/>
+                                      <span class="icon is-small is-left">
+                                          <i class="fas fa-tag"></i>
+                                      </span>
+                                  </p>
+                              </div>
+                              <div class="field">
+                                  <span class="icon is-large">
+                                      <i class="fas fa-arrow-right fa-2x"></i>
+                                  </span>
+                              </div>
+                              <div class="field">
+                                  <p class="control is-expanded has-icons-left">
+                                      <input id="url" class="input" name="Redirect" type="URL" value="" placeholder="URL" required/>
+                                      <span class="icon is-small is-left">
+                                          <i class="fas fa-globe"></i>
+                                      </span>
+                                  </p>
+                              </div>
+                          </div>
+                      </div>
+                  </form>
+              </section>
+              <footer class="modal-card-foot">
+                  <button class="button is-link" type="submit">Save</button>
+                  <button class="button" type="button">Cancel</button>
+              </footer>
           </section>
-        </div>
-
       </div>
 
-    </div>
   </body>
   <script>
     // updating is used to store the name of the entry we're updating, we have to use this to write the updated link
@@ -271,7 +273,9 @@
 
          // Show the links section
          document.querySelector("#login").style.display = 'none';
-         document.querySelector("#content").style.display = 'block';
+           document.querySelectorAll(".on-login").forEach((element) => {
+               element.style.display = 'block';
+           });
        })
        .catch((error) => {
          history.pushState({}, "Mand admin page", "/admin");
@@ -281,9 +285,9 @@
 
    // Render links on the page
    const renderLinks = (links) => {
-     const linksEl = document.querySelector('#links');
+     const linksEl = document.querySelector('#linksbody');
      // Remove old links
-     linksEl.querySelectorAll('div.link').forEach((l) => {
+     linksEl.querySelectorAll('tr').forEach((l) => {
        linksEl.removeChild(l);
      });
 
@@ -299,13 +303,31 @@
        }
        return collection;
      }, []).forEach((l) => {
-       let link = document.createElement('div');
+       let tr = document.createElement('tr');
 
-       let visits = document.createElement('span');
-       let name = document.createElement('span');
+       let visitsBox = document.createElement('td');
+       let visits = document.createElement('th');
+       let name = document.createElement('td');
+       let link =document.createElement('td');
        let href = document.createElement('a');
-       let to = document.createElement('div');
-       let img = document.createElement('img');
+
+       let edit = document.createElement('td');
+       let editBox = document.createElement('span');
+       let editIcon = document.createElement('i');
+       let remove = document.createElement('td');
+       let removeBox = document.createElement('span');
+       let removeIcon = document.createElement('i');
+
+       editBox.classList.add('icon', 'is-small');
+       editIcon.classList.add('fas', 'fa-edit');
+       editBox.appendChild(editIcon);
+       edit.appendChild(editBox);
+
+       removeBox.classList.add('icon', 'is-small');
+       removeIcon.classList.add('fas', 'fa-trash');
+       removeBox.appendChild(removeIcon);
+       remove.appendChild(removeBox);
+
        name.textContent = l.Name;
        visits.textContent = l.Visits;
 
@@ -317,26 +339,20 @@
        href.textContent = url.href;
        href.href = url.href;
        href.target = '_blank';
-       img.src = '/admin/to.svg';
-
-       to.appendChild(img);
-       link.appendChild(visits);
-       link.appendChild(name);
-       link.appendChild(to);
        link.appendChild(href);
-       link.classList.add('link');
-       link.data = l;
 
-       let edit = document.createElement('img');
-       edit.src = '/admin/edit.svg';
+       tr.appendChild(visits);
+       tr.appendChild(name);
+       tr.appendChild(link);
+       tr.classList.add('link');
+       tr.data = l;
+
        edit.onclick = (e) => {
          let data = e.composedPath().find((e) => { return e.classList && e.classList.contains('link'); }).data;
          switchCreateUpdate(data);
        };
-       link.appendChild(edit);
+       tr.appendChild(edit);
 
-       let remove = document.createElement('img');
-       remove.src = '/admin/delete.svg';
        remove.onclick = (e) => {
          let data = e.composedPath().find((e) => { return e.classList && e.classList.contains('link'); }).data;
          if (confirm(`Are you sure you want to delete this link?\n\n${data.Name}\n\n${data.Redirect}`)) {
@@ -351,9 +367,9 @@
              .catch(catchErrors);
          }
        };
-       link.appendChild(remove);
+       tr.appendChild(remove);
 
-       linksEl.appendChild(link);
+       linksEl.appendChild(tr);
      })
    };
 
@@ -418,7 +434,7 @@
    }
 
    // Update a link action
-   document.querySelector('#update').querySelector('[type=submit]').onclick = (e) => {
+   document.querySelector('#update').querySelector('footer').querySelector('[type=submit]').onclick = (e) => {
      let form = document.querySelector('#update').querySelector('form');
      if (!form.reportValidity()) {
        return;
@@ -445,7 +461,7 @@
    }
 
    // Update cancel action
-   document.querySelector('#update').querySelector('[type=button]').onclick = (e) => {
+   document.querySelector('#update').querySelector('footer').querySelector('[type=button]').onclick = (e) => {
      switchCreateUpdate();
    }
 
