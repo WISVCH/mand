@@ -24,28 +24,6 @@
      .on-login {
          display: none;
      }
-
-     /* #updateModal { */
-     /* display: none; */
-     /* position: fixed; */
-     /* top: 0; */
-     /* left: 0; */
-     /* background: rgba(0, 0, 0, 0.5); */
-     /* width: 100vw; */
-     /* height: 100vh; */
-     /* } */
-     /*  */
-     /* #updateModal > section { */
-     /* background: white; */
-     /* width: 800px; */
-     /* margin: auto; */
-     /* z-index: 10; */
-     /* border-radius: 4px; */
-     /* } */
-
-     /* #updateModal > section > form { */
-     /* margin: 16px; */
-     /* } */
     </style>
   </head>
   <body>
@@ -62,7 +40,7 @@
           <a class="button is-large is-link is-outlined" href="/auth/connect/login">Log in with CH Connect</a>
       </section>
 
-      <section class="section on-login" id="search">
+      <section class="section is-hidden" id="search">
           <div class="columns is-centered">
               <div class="column is-half">
                   <div class="field">
@@ -77,7 +55,7 @@
           </div>
       </section>
 
-      <section class="section on-login" id="create">
+      <section class="section is-hidden" id="create">
           <div class="columns is-centered">
               <form class="column is-half" action="javascript:void(0);">
 
@@ -106,7 +84,7 @@
           </div>
       </section>
 
-      <section class="section on-login" id="links">
+      <section class="section is-hidden" id="links">
           <div class="columns is-centered">
               <div class="column is-half">
                   <table class="table is-fullwidth is-hoverable">
@@ -185,15 +163,13 @@
     let updating;
     let token;
 
-    document.querySelector('#updateModal').style.display = 'none';
-
     // Set correct errors on incoming requests
     const handleResponse = (r) => {
       if (!r.ok) {
         const error = Object.assign({}, {
           status: r.status,
           statusText: r.statusText,
-          errorMessage: "Request failed",
+          errorMessage: 'Request failed',
         });
 
         return Promise.reject(error);
@@ -243,11 +219,9 @@
          i.value = updateData[i.name];
        }
 
-       /* create.style.display = 'none'; */
-       updateModal.style.display = 'flex';
+       updateModal.classList.add('is-active');
      } else {
-       /* create.style.display = 'block'; */
-       updateModal.style.display = 'none';
+       updateModal.classList.remove('is-active');
      }
    }
 
@@ -266,19 +240,19 @@
        .then((json) => {
          // Set authentication token and push logged in navigation state
          token = json.token;
-         history.pushState({}, "Mand admin page", "/admin");
+         history.pushState({}, 'Mand admin page', '/admin');
 
          // Retrieve links now that we are authenticated
          updateLinks();
 
          // Show the links section
-         document.querySelector("#login").style.display = 'none';
-           document.querySelectorAll(".on-login").forEach((element) => {
-               element.style.display = 'block';
-           });
+         document.querySelectorAll('.is-hidden').forEach((element) => {
+           element.classList.remove('is-hidden');
+         });
+         document.querySelector('#login').classList.add('is-hidden');
        })
        .catch((error) => {
-         history.pushState({}, "Mand admin page", "/admin");
+         history.pushState({}, 'Mand admin page', '/admin');
          catchErrors(error);
        });
    };
