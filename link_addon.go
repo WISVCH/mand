@@ -16,7 +16,6 @@ func (a App) createLink(l *Link) error {
 }
 
 func (a App) updateLink(name string, l *Link) error {
-	fmt.Printf("link %s", name)
 	err := a.DB.Model(&Link{}).
 		Where("name = ?", name).
 		Update(&l).
