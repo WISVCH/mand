@@ -231,10 +231,10 @@
        return;
      }
 
-     // Extract code from the search part of the url
-     const code = location.search.split('code=')[1].split('&')[0];
+     // Extract code and state from the search part of the url
+     const query = location.search.split('?')[1];
 
-     const url = `/auth/connect/callback?code=${code}`;
+     const url = `/auth/connect/callback?${query}`;
      fetch(url, {})
        .then(handleResponse)
        .then((json) => {

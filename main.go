@@ -40,7 +40,28 @@ type Config struct {
 }
 
 func main() {
-	var mand App
+	// Load config
+	mand := loadEnv()
+
+	// Initialize random method for getting oauth state strings
+	initRand()
+
+	// Connects to database & automigrates structs
+	connectDB(mand)
+	defer mand.DB.Close()
+
+	// Initialize OpenID Connect module
+	connect(mand.Config.ConnectURL, mand.Config.ConnectClientID, mand.Config.ClientSecret, mand.Config.RedirectURL, mand.Config.AllowedGroup)
+
+	router := getHandler(mand)
+
+	if err := router.Run(":8080"); err != nil {
+		log.Fatalf("run exited with error: %s", err)
+	}
+}
+
+func loadEnv() *App {
+	var conf App
 
 	// Bind variables from file to environment for local development
 	_, err := os.Stat("mand.env")
@@ -52,36 +73,42 @@ func main() {
 	}
 
 	// Load environment variables for config
-	err = envconfig.Process("", &mand.Config)
+	err = envconfig.Process("", &conf.Config)
 	if err != nil {
 		log.Fatalf("unable to parse environment variables, error: %s", err)
 	}
 
+	return &conf
+}
+
+func connectDB(mand *App) {
 	// Use the config variables, otherwise use the connectionString
 	connectionString := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s %s", mand.Config.DBHost, mand.Config.DBPort, mand.Config.DBUser, mand.Config.DBPassword, mand.Config.DBName, mand.Config.DBOptions)
 	if mand.Config.DBConnectionString != "" {
 		connectionString = mand.Config.DBConnectionString
 	}
+
+	// Connect to database
+	var err error
 	mand.DB, err = gorm.Open("postgres", connectionString)
 	if err != nil {
 		log.Fatalf("unable to connect to database, error: %s", err)
 	}
-	defer mand.DB.Close()
 
 	mand.DB.LogMode(mand.Config.DBDebug)
 
 	// Automigrate for possible struct updates
 	mand.DB.AutoMigrate(&Link{})
+}
 
-	connect(mand.Config.ConnectURL, mand.Config.ConnectClientID, mand.Config.ClientSecret, mand.Config.RedirectURL, mand.Config.AllowedGroup)
-
+func getHandler(mand *App) *gin.Engine {
 	// Same as the Default() instance without the logger
 	r := gin.New()
 	r.Use(gin.Recovery())
 
 	// Set up health check endpoint
 	r.GET("/healthz", func(c *gin.Context) {
-		if err = mand.DB.DB().Ping(); err != nil {
+		if err := mand.DB.DB().Ping(); err != nil {
 			log.Printf("database ping failed: %s", err)
 			c.String(http.StatusInternalServerError, "database ping failed")
 		} else {
@@ -109,7 +136,6 @@ func main() {
 
 	// If it is an undefined route, perform a redirect
 	r.NoRoute(redirect(mand))
-	if err = r.Run(":8080"); err != nil {
-		log.Fatalf("run exited with error: %s", err)
-	}
+
+	return r
 }

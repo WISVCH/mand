@@ -21,7 +21,7 @@ type Link struct {
 }
 
 // get all links, in alphabetical order
-func getAllLinkController(a App) gin.HandlerFunc {
+func getAllLinkController(a *App) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		search := c.Query("search")
 
@@ -46,7 +46,7 @@ func getAllLinkController(a App) gin.HandlerFunc {
 }
 
 // create a link, required fields are name and redirect
-func createLinkController(a App) gin.HandlerFunc {
+func createLinkController(a *App) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get link body
 		link, err := getLinkFromContext(c)
@@ -83,7 +83,7 @@ func createLinkController(a App) gin.HandlerFunc {
 }
 
 // update a link, required fields are name and redirect
-func updateLinkController(a App) gin.HandlerFunc {
+func updateLinkController(a *App) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get path param Name
 		name := c.Param("Name")
@@ -123,7 +123,7 @@ func updateLinkController(a App) gin.HandlerFunc {
 }
 
 // delete a link with path parameter Name
-func deleteLinkController(a App) gin.HandlerFunc {
+func deleteLinkController(a *App) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get path param Name
 		name := c.Param("Name")

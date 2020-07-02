@@ -10,7 +10,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func redirect(a App) gin.HandlerFunc {
+func redirect(a *App) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Parse url to split it into components
 		parsedURL, err := url.ParseRequestURI(c.Request.RequestURI)
