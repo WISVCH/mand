@@ -42,7 +42,7 @@ func connect(URL, clientID, clientSecret, redirectURL, group string) {
 	}
 }
 
-func connectMiddleware(a App) gin.HandlerFunc {
+func connectMiddleware(a *App) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("authorization")
 		auth := strings.Split(authHeader, " ")
@@ -66,14 +66,14 @@ func connectMiddleware(a App) gin.HandlerFunc {
 	}
 }
 
-func loginController(a App) gin.HandlerFunc {
+func loginController(a *App) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// change to hash of the session or some other sort unique session identifiable data for the user to avoid csrf attacks
 		c.Redirect(http.StatusFound, connectConfig.AuthCodeURL("login"))
 	}
 }
 
-func callbackController(a App) gin.HandlerFunc {
+func callbackController(a *App) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token, err := connectConfig.Exchange(context.TODO(), c.Query("code"))
 		if err != nil {
