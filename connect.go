@@ -14,6 +14,7 @@ import (
 var connectConfig oauth2.Config
 var verifier *oidc.IDTokenVerifier
 var allowedGroup string
+var states = map[string]bool{}
 
 func connect(URL, clientID, clientSecret, redirectURL, group string) {
 	ctx := context.Background()
@@ -40,6 +41,7 @@ func connect(URL, clientID, clientSecret, redirectURL, group string) {
 		// "openid" is a required scope for OpenID Connect flows.
 		Scopes: []string{oidc.ScopeOpenID, "ldap"},
 	}
+
 }
 
 func connectMiddleware(a *App) gin.HandlerFunc {
@@ -68,22 +70,36 @@ func connectMiddleware(a *App) gin.HandlerFunc {
 
 func loginController(a *App) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// change to hash of the session or some other sort unique session identifiable data for the user to avoid csrf attacks
-		c.Redirect(http.StatusFound, connectConfig.AuthCodeURL("login"))
+		// Get new random string
+		state := randSeq(30)
+		// Store the state for the user
+		states[state] = true
+
+		c.Redirect(http.StatusFound, connectConfig.AuthCodeURL(state))
 	}
 }
 
 func callbackController(a *App) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		state := c.Query("state")
+		_, ok := states[state]
+		if !ok {
+			log.Errorf("state was not found, possible CSRF attack, state: %s", state)
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
 		token, err := connectConfig.Exchange(context.TODO(), c.Query("code"))
 		if err != nil {
 			log.Errorf("unable to exchange token \"%s\", error: %s", c.Query("code"), err)
+			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
 
 		rawIDToken, ok := token.Extra("id_token").(string)
 		if !ok {
 			log.Errorf("unable to get id_token from login")
+			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
 

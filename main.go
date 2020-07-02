@@ -43,6 +43,9 @@ func main() {
 	// Load config
 	mand := loadEnv()
 
+	// Initialize random method for getting oauth state strings
+	initRand()
+
 	// Connects to database & automigrates structs
 	connectDB(mand)
 	defer mand.DB.Close()
