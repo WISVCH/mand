@@ -4,7 +4,7 @@ COPY . .
 RUN go mod download
 RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go install
 
-FROM wisvch/debian:buster-slim
+FROM ghcr.io/wisvch/debian:buster-slim
 WORKDIR /srv
 COPY --from=builder /go/bin/mand /srv
 COPY ./web /srv/web
