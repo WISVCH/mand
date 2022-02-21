@@ -23,6 +23,7 @@ func redirect(a *App) gin.HandlerFunc {
 
 		if path == "" || path == "/" {
 			c.Redirect(http.StatusFound, a.Config.EmptyRedirect)
+			return
 		}
 
 		linkPath := strings.ToLower(path)
