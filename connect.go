@@ -108,7 +108,8 @@ func callbackController(a *App) gin.HandlerFunc {
 				"token": rawIDToken,
 			})
 		} else {
-			c.AbortWithStatus(http.StatusUnauthorized)
+			c.Writer.WriteString("permission denied")
+			c.Status(http.StatusUnauthorized)
 		}
 	}
 }
