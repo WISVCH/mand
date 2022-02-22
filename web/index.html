@@ -287,19 +287,15 @@
 
        let edit = document.createElement('td');
        let editBox = document.createElement('span');
-       let editIcon = document.createElement('i');
        let remove = document.createElement('td');
        let removeBox = document.createElement('span');
-       let removeIcon = document.createElement('i');
 
-       editBox.classList.add('icon', 'is-small');
-       editIcon.classList.add('fas', 'fa-edit');
-       editBox.appendChild(editIcon);
+       editBox.classList.add('button', 'is-link');
+       editBox.innerHTML = 'edit';
        edit.appendChild(editBox);
 
-       removeBox.classList.add('icon', 'is-small');
-       removeIcon.classList.add('fas', 'fa-trash');
-       removeBox.appendChild(removeIcon);
+       removeBox.classList.add('button', 'is-danger');
+       removeBox.innerHTML = 'del';
        remove.appendChild(removeBox);
 
        name.textContent = l.Name;
