@@ -39,7 +39,7 @@ func connect(URL, clientID, clientSecret, redirectURL, group string) {
 		Endpoint: provider.Endpoint(),
 
 		// "openid" is a required scope for OpenID Connect flows.
-		Scopes: []string{oidc.ScopeOpenID, "ldap"},
+		Scopes: []string{oidc.ScopeOpenID, "auth"},
 	}
 
 }
@@ -127,10 +127,10 @@ func checkAuth(rawIDToken string) bool {
 	}
 
 	var claims struct {
-		Groups []string `json:"ldap_groups"`
+		Groups []string `json:"google_groups"`
 	}
 	if err := idToken.Claims(&claims); err != nil {
-		log.Errorf("unable to read ldap_groups from id_token, error: %s", err)
+		log.Errorf("unable to read google_groups from id_token, error: %s", err)
 		return false
 	}
 
