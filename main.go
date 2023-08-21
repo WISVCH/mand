@@ -43,15 +43,9 @@ func main() {
 	// Load config
 	mand := loadEnv()
 
-	// Initialize random method for getting oauth state strings
-	initRand()
-
 	// Connects to database & automigrates structs
 	connectDB(mand)
 	defer mand.DB.Close()
-
-	// Initialize OpenID Connect module
-	connect(mand.Config.ConnectURL, mand.Config.ConnectClientID, mand.Config.ClientSecret, mand.Config.RedirectURL, mand.Config.AllowedGroup)
 
 	router := getHandler(mand)
 
@@ -119,14 +113,7 @@ func getHandler(mand *App) *gin.Engine {
 	// Static file serving
 	r.StaticFS("/admin", http.Dir("web"))
 
-	auth := r.Group("/auth")
-	{
-		auth.GET("/connect/callback", callbackController(mand))
-		auth.GET("/connect/login", loginController(mand))
-	}
-
 	link := r.Group("/link")
-	link.Use(connectMiddleware(mand))
 	{
 		link.GET("/", getAllLinkController(mand))
 		link.POST("/", createLinkController(mand))
