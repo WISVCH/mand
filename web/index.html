@@ -1,5 +1,5 @@
 <html>
-  <head>
+<head>
     <meta charset="utf-8" />
 
     <title>Mand - Redirect users</title>
@@ -12,433 +12,391 @@
 
     <link rel="shortcut icon" href="/admin/favicon.png" type="image/x-icon">
     <style>
-     body {
-         margin: 0px;
-         font-family: "Helvetica Neue", "Calibri Light", Roboto, sans-serif;
-         -webkit-font-smoothing: antialiased;
-         -moz-osx-font-smoothing: grayscale;
-         font-size: 16px;
-         letter-spacing: 0.02em;
-     }
+        body {
+            margin: 0px;
+            font-family: "Helvetica Neue", "Calibri Light", Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-size: 16px;
+            letter-spacing: 0.02em;
+        }
 
-     .on-login {
-         display: none;
-     }
+        .on-login {
+            display: none;
+        }
     </style>
-  </head>
-  <body>
-      <section class="section has-text-centered tile is-paddingless">
-          <div class="tile is-parent is-vertical">
-              <article class="tile is-child notification is-link">
-                  <p class="title">Mand</p>
-                  <p class="subtitle">Redirect users</p>
-              </article>
-          </div>
-      </section>
+</head>
+<body>
+<section class="section has-text-centered tile is-paddingless">
+    <div class="tile is-parent is-vertical">
+        <article class="tile is-child notification is-link">
+            <p class="title">Mand</p>
+            <p class="subtitle">Redirect users</p>
+        </article>
+    </div>
+</section>
 
-      <section class="section has-text-centered" id="login">
-          <a class="button is-large is-link is-outlined" href="/auth/connect/login">Log in with CH Connect</a>
-      </section>
+<section class="section has-text-centered" id="login">
+    <a class="button is-large is-link is-outlined" href="/auth/connect/login">Log in with CH Connect</a>
+</section>
 
-      <section class="section is-hidden" id="search">
-          <div class="columns is-centered">
-              <div class="column is-half">
-                  <div class="field">
-                      <div class="control is-expanded has-icons-left">
-                          <input class="input" type="text" name="search" value="" placeholder="Search"/>
-                          <span class="icon is-small is-left">
+<section class="section is-hidden" id="search">
+    <div class="columns is-centered">
+        <div class="column is-half">
+            <div class="field">
+                <div class="control is-expanded has-icons-left">
+                    <input class="input" type="text" name="search" value="" placeholder="Search"/>
+                    <span class="icon is-small is-left">
                               <i class="fas fa-tag"></i>
                           </span>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </section>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-      <section class="section is-hidden" id="create">
-          <div class="columns is-centered">
-              <form class="column is-half" action="javascript:void(0);">
+<section class="section is-hidden" id="create">
+    <div class="columns is-centered">
+        <form class="column is-half" action="javascript:void(0);">
 
-                  <div class="field is-horizontal">
-                      <div class="field-body">
-                          <div class="field">
-                              <p class="control is-expanded has-icons-left">
-                                  <input id="name" class="input" name="Name" type="text" value="" pattern="[a-zA-Z0-9]+" placeholder="Name" required/>
-                                  <span class="icon is-small is-left">
+            <div class="field is-horizontal">
+                <div class="field-body">
+                    <div class="field">
+                        <p class="control is-expanded has-icons-left">
+                            <input id="name" class="input" name="Name" type="text" value="" pattern="[a-zA-Z0-9]+" placeholder="Name" required/>
+                            <span class="icon is-small is-left">
                                       <i class="fas fa-tag"></i>
                                   </span>
-                              </p>
-                          </div>
-                          <div class="field">
-                              <p class="control is-expanded has-icons-left">
-                                  <input id="url" class="input" name="Redirect" type="URL" value="" placeholder="URL" required/>
-                                  <span class="icon is-small is-left">
+                        </p>
+                    </div>
+                    <div class="field">
+                        <p class="control is-expanded has-icons-left">
+                            <input id="url" class="input" name="Redirect" type="URL" value="" placeholder="URL" required/>
+                            <span class="icon is-small is-left">
                                       <i class="fas fa-globe"></i>
                                   </span>
-                              </p>
-                          </div>
-                          <button class="button is-link" type="submit">Create</button>
-                      </div>
-                  </div>
-              </form>
-          </div>
-      </section>
+                        </p>
+                    </div>
+                    <button class="button is-link" type="submit">Create</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
 
-      <section class="section is-hidden" id="links">
-          <div class="columns is-centered">
-              <div class="column is-half">
-                  <table class="table is-fullwidth is-hoverable">
-                      <thead>
-                          <tr>
-                              <th><abbr title="Visits">#</abbr></th>
-                              <th>From</th>
-                              <th>To</th>
-                              <th></th>
-                              <th></th>
-                          </tr>
-                      </thead>
-                      <tfoot>
-                          <tr>
-                              <th><abbr title="Visits">#</abbr></th>
-                              <th>From</th>
-                              <th>To</th>
-                              <th></th>
-                              <th></th>
-                          </tr>
-                      </tfoot>
-                      <tbody id="linksbody">
-                      </tbody>
-                  </table>
-              </div>
-          </div>
-      </section>
+<section class="section is-hidden" id="links">
+    <div class="columns is-centered">
+        <div class="column is-half">
+            <table class="table is-fullwidth is-hoverable">
+                <thead>
+                <tr>
+                    <th><abbr title="Visits">#</abbr></th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tfoot>
+                <tr>
+                    <th><abbr title="Visits">#</abbr></th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+                </tfoot>
+                <tbody id="linksbody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
 
-      <div class="modal" id="updateModal">
-          <div class="modal-background"></div>
-          <section class="modal-card" id="update">
-              <header class="modal-card-head">
-                  <p class="modal-card-title">Edit</p>
-              </header>
+<div class="modal" id="updateModal">
+    <div class="modal-background"></div>
+    <section class="modal-card" id="update">
+        <header class="modal-card-head">
+            <p class="modal-card-title">Edit</p>
+        </header>
 
-              <section class="modal-card-body">
-                  <form class="column is-marginless" action="javascript:void(0);">
+        <section class="modal-card-body">
+            <form class="column is-marginless" action="javascript:void(0);">
 
-                      <div class="field is-horizontal">
-                          <div class="field-body">
-                              <div class="field">
-                                  <p class="control is-expanded has-icons-left">
-                                      <input id="name" class="input" name="Name" type="text" value="" pattern="[a-zA-Z0-9]+" placeholder="Name" required/>
-                                      <span class="icon is-small is-left">
+                <div class="field is-horizontal">
+                    <div class="field-body">
+                        <div class="field">
+                            <p class="control is-expanded has-icons-left">
+                                <input id="name" class="input" name="Name" type="text" value="" pattern="[a-zA-Z0-9]+" placeholder="Name" required/>
+                                <span class="icon is-small is-left">
                                           <i class="fas fa-tag"></i>
                                       </span>
-                                  </p>
-                              </div>
-                              <div class="field">
+                            </p>
+                        </div>
+                        <div class="field">
                                   <span class="icon is-large">
                                       <i class="fas fa-arrow-right fa-2x"></i>
                                   </span>
-                              </div>
-                              <div class="field">
-                                  <p class="control is-expanded has-icons-left">
-                                      <input id="url" class="input" name="Redirect" type="URL" value="" placeholder="URL" required/>
-                                      <span class="icon is-small is-left">
+                        </div>
+                        <div class="field">
+                            <p class="control is-expanded has-icons-left">
+                                <input id="url" class="input" name="Redirect" type="URL" value="" placeholder="URL" required/>
+                                <span class="icon is-small is-left">
                                           <i class="fas fa-globe"></i>
                                       </span>
-                                  </p>
-                              </div>
-                          </div>
-                      </div>
-                  </form>
-              </section>
-              <footer class="modal-card-foot">
-                  <button class="button is-link" type="submit">Save</button>
-                  <button class="button" type="button">Cancel</button>
-              </footer>
-          </section>
-      </div>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </section>
+        <footer class="modal-card-foot">
+            <button class="button is-link" type="submit">Save</button>
+            <button class="button" type="button">Cancel</button>
+        </footer>
+    </section>
+</div>
 
-  </body>
-  <script>
+</body>
+<script>
     // updating is used to store the name of the entry we're updating, we have to use this to write the updated link
     let updating;
     let token;
 
     // Set correct errors on incoming requests
     const handleResponse = (r) => {
-      if (!r.ok) {
-        const error = Object.assign({}, {
-          status: r.status,
-          statusText: r.statusText,
-          errorMessage: 'Request failed',
+        if (!r.ok) {
+            const error = Object.assign({}, {
+                status: r.status,
+                statusText: r.statusText,
+                errorMessage: 'Request failed',
+            });
+
+            return Promise.reject(error);
+        }
+
+        return r.json().then((json) => {
+            return json;
         });
+    }
 
-        return Promise.reject(error);
-      }
-
-      return r.json().then((json) => {
-        return json;
-      });
-   }
-
-   // Handle errors during request processing
-   const catchErrors = (error) => {
-     const message = `
+    // Handle errors during request processing
+    const catchErrors = (error) => {
+        const message = `
        ${error.status} - ${error.statusText}\n
        ${error.errorMessage}
      `;
-     console.error(error);
-     alert(message);
-   }
+        console.error(error);
+        alert(message);
+    }
 
-   // Construct a basic config to be used for all fetch requests
-   const getBasicFetchConfig = () => {
-     let headers = new Headers();
+    // Construct a basic config to be used for all fetch requests
+    const getBasicFetchConfig = () => {
+        let headers = new Headers();
 
-     if (token) {
-       headers.append('Authorization', `Bearer ${token}`);
-     }
+        return config = {
+            headers: headers,
+        }
+    }
 
-     return config = {
-       headers: headers,
-     }
-   }
+    // SwitchCreateUpdate switches to update mode when there is updateData, if not, we switch to create mode
+    const switchCreateUpdate = (updateData) => {
+        let create = document.querySelector('#create');
+        let update = document.querySelector('#update');
+        let updateModal = document.querySelector('#updateModal');
+        create.querySelector('form').reset();
+        update.querySelector('form').reset();
 
-   // SwitchCreateUpdate switches to update mode when there is updateData, if not, we switch to create mode
-   const switchCreateUpdate = (updateData) => {
-     let create = document.querySelector('#create');
-     let update = document.querySelector('#update');
-     let updateModal = document.querySelector('#updateModal');
-     create.querySelector('form').reset();
-     update.querySelector('form').reset();
+        if (updateData) {
+            updating = updateData.Name;
+            let fields = update.querySelectorAll('input');
 
-     if (updateData) {
-       updating = updateData.Name;
-       let fields = update.querySelectorAll('input');
+            for (let i of fields) {
+                i.value = updateData[i.name];
+            }
 
-       for (let i of fields) {
-         i.value = updateData[i.name];
-       }
+            updateModal.classList.add('is-active');
+        } else {
+            updateModal.classList.remove('is-active');
+        }
+    }
 
-       updateModal.classList.add('is-active');
-     } else {
-       updateModal.classList.remove('is-active');
-     }
-   }
+    // Render links on the page
+    const renderLinks = (links) => {
+        const linksEl = document.querySelector('#linksbody');
+        // Remove old links
+        linksEl.querySelectorAll('tr').forEach((l) => {
+            linksEl.removeChild(l);
+        });
 
-   const checkLogin = () => {
-     // If there are no fetch parameters in the url, we have no parameters to do authentication with
-     if (!location.search) {
-       return;
-     }
+        const host = window.location.host
 
-     // Extract code and state from the search part of the url
-     const query = location.search.split('?')[1];
+        // Put all the links to the host (self) first. The links are already alphabetically sorted.
+        // Add each link to the dom, can be done better by first building link elements and then adding
+        links.reduce((collection, link) => {
+            if (link.Redirect.indexOf(host) > -1) {
+                collection.unshift(link);
+            } else {
+                collection.push(link);
+            }
+            return collection;
+        }, []).forEach((l) => {
+            let tr = document.createElement('tr');
 
-     const url = `/auth/connect/callback?${query}`;
-     fetch(url, {})
-       .then(handleResponse)
-       .then((json) => {
-         // Set authentication token and push logged in navigation state
-         token = json.token;
-         history.pushState({}, 'Mand admin page', '/admin');
+            let visitsBox = document.createElement('td');
+            let visits = document.createElement('th');
+            let name = document.createElement('td');
+            let link =document.createElement('td');
+            let href = document.createElement('a');
 
-         // Retrieve links now that we are authenticated
-         updateLinks();
+            let edit = document.createElement('td');
+            let editBox = document.createElement('span');
+            let remove = document.createElement('td');
+            let removeBox = document.createElement('span');
 
-         // Show the links section
-         document.querySelectorAll('.is-hidden').forEach((element) => {
-           element.classList.remove('is-hidden');
-         });
-         document.querySelector('#login').classList.add('is-hidden');
-       })
-       .catch((error) => {
-         history.pushState({}, 'Mand admin page', '/admin');
-         catchErrors(error);
-       });
-   };
+            editBox.classList.add('button', 'is-link');
+            editBox.innerHTML = 'edit';
+            edit.appendChild(editBox);
 
-   // Render links on the page
-   const renderLinks = (links) => {
-     const linksEl = document.querySelector('#linksbody');
-     // Remove old links
-     linksEl.querySelectorAll('tr').forEach((l) => {
-       linksEl.removeChild(l);
-     });
+            removeBox.classList.add('button', 'is-danger');
+            removeBox.innerHTML = 'del';
+            remove.appendChild(removeBox);
 
-     const host = window.location.host
+            name.textContent = l.Name;
+            visits.textContent = l.Visits;
 
-     // Put all the links to the host (self) first. The links are already alphabetically sorted.
-     // Add each link to the dom, can be done better by first building link elements and then adding
-     links.reduce((collection, link) => {
-       if (link.Redirect.indexOf(host) > -1) {
-         collection.unshift(link);
-       } else {
-         collection.push(link);
-       }
-       return collection;
-     }, []).forEach((l) => {
-       let tr = document.createElement('tr');
+            const checks = ['https://', 'http://'];
+            if (l.Redirect.indexOf(checks[0]) === -1 && l.Redirect.indexOf(checks[1]) === -1) {
+                return;
+            }
+            const url = new URL(l.Redirect);
+            href.textContent = url.href;
+            href.href = url.href;
+            href.target = '_blank';
+            link.appendChild(href);
 
-       let visitsBox = document.createElement('td');
-       let visits = document.createElement('th');
-       let name = document.createElement('td');
-       let link =document.createElement('td');
-       let href = document.createElement('a');
+            tr.appendChild(visits);
+            tr.appendChild(name);
+            tr.appendChild(link);
+            tr.classList.add('link');
+            tr.data = l;
 
-       let edit = document.createElement('td');
-       let editBox = document.createElement('span');
-       let remove = document.createElement('td');
-       let removeBox = document.createElement('span');
+            edit.onclick = (e) => {
+                let data = e.composedPath().find((e) => { return e.classList && e.classList.contains('link'); }).data;
+                switchCreateUpdate(data);
+            };
+            tr.appendChild(edit);
 
-       editBox.classList.add('button', 'is-link');
-       editBox.innerHTML = 'edit';
-       edit.appendChild(editBox);
+            remove.onclick = (e) => {
+                let data = e.composedPath().find((e) => { return e.classList && e.classList.contains('link'); }).data;
+                if (confirm(`Are you sure you want to delete this link?\n\n${data.Name}\n\n${data.Redirect}`)) {
+                    let config = getBasicFetchConfig();
+                    config.method = 'DELETE';
 
-       removeBox.classList.add('button', 'is-danger');
-       removeBox.innerHTML = 'del';
-       remove.appendChild(removeBox);
+                    fetch(`/link/${data.Name}`, config)
+                        .then(handleResponse)
+                        .then(() => {
+                            updateLinks();
+                        })
+                        .catch(catchErrors);
+                }
+            };
+            tr.appendChild(remove);
 
-       name.textContent = l.Name;
-       visits.textContent = l.Visits;
+            linksEl.appendChild(tr);
+        })
+    };
 
-       const checks = ['https://', 'http://'];
-       if (l.Redirect.indexOf(checks[0]) === -1 && l.Redirect.indexOf(checks[1]) === -1) {
-         return;
-       }
-       const url = new URL(l.Redirect);
-       href.textContent = url.href;
-       href.href = url.href;
-       href.target = '_blank';
-       link.appendChild(href);
+    // Get all the links
+    const updateLinks = (search = '') => {
 
-       tr.appendChild(visits);
-       tr.appendChild(name);
-       tr.appendChild(link);
-       tr.classList.add('link');
-       tr.data = l;
+        let config = getBasicFetchConfig();
 
-       edit.onclick = (e) => {
-         let data = e.composedPath().find((e) => { return e.classList && e.classList.contains('link'); }).data;
-         switchCreateUpdate(data);
-       };
-       tr.appendChild(edit);
+        // Only add a search string when searching
+        let searchString = '';
+        if (search) {
+            searchString = `?search=${search}`;
+        }
 
-       remove.onclick = (e) => {
-         let data = e.composedPath().find((e) => { return e.classList && e.classList.contains('link'); }).data;
-         if (confirm(`Are you sure you want to delete this link?\n\n${data.Name}\n\n${data.Redirect}`)) {
-           let config = getBasicFetchConfig();
-           config.method = 'DELETE';
+        fetch(`/link/${searchString}`, config)
+            .then(handleResponse)
+            .then((json) => {
+                renderLinks(json);
+            })
+            .catch(catchErrors);
+    };
 
-           fetch(`/link/${data.Name}`, config)
-             .then(handleResponse)
-             .then(() => {
-               updateLinks();
-             })
-             .catch(catchErrors);
-         }
-       };
-       tr.appendChild(remove);
+    // The search action
+    const checkSearch = (e) => {
+        searchPattern = new RegExp(/^[a-zA-Z0-9]*$/);
+        if (!searchPattern.test(e.target.value)) {
+            e.target.value = e.target.value.replace(e.data, '');
+            return;
+        }
+        updateLinks(e.target.value);
+    };
+    document.querySelector('#search').querySelector('input').addEventListener('input', checkSearch);
 
-       linksEl.appendChild(tr);
-     })
-   };
+    // Create a new link action
+    document.querySelector('#create').querySelector('[type=submit]').onclick = (e) => {
+        let form = document.querySelector('#create').querySelector('form');
+        if (!form.reportValidity()) {
+            return;
+        }
 
-   // Get all the links
-   const updateLinks = (search = '') => {
-     if (!token) {
-       return;
-     }
+        let data = {};
+        let elements = form.querySelectorAll('input');
+        for (let el of elements) {
+            data[el.name] = el.value;
+        }
 
-     let config = getBasicFetchConfig();
+        let config = getBasicFetchConfig();
+        config.method = 'POST';
+        config.body = JSON.stringify(data);
+        config.headers.set('Content-Type', 'application/json');
 
-     // Only add a search string when searching
-     let searchString = '';
-     if (search) {
-       searchString = `?search=${search}`;
-     }
+        fetch('/link/', config)
+            .then(handleResponse)
+            .then(() => {
+                form.reset();
+                updateLinks();
+            })
+            .catch(catchErrors);
+    }
 
-     fetch(`/link/${searchString}`, config)
-       .then(handleResponse)
-       .then((json) => {
-         renderLinks(json);
-       })
-       .catch(catchErrors);
-   };
+    // Update a link action
+    document.querySelector('#update').querySelector('footer').querySelector('[type=submit]').onclick = (e) => {
+        let form = document.querySelector('#update').querySelector('form');
+        if (!form.reportValidity()) {
+            return;
+        }
 
-   // The search action
-   const checkSearch = (e) => {
-     searchPattern = new RegExp(/^[a-zA-Z0-9]*$/);
-     if (!searchPattern.test(e.target.value)) {
-       e.target.value = e.target.value.replace(e.data, '');
-       return;
-     }
-     updateLinks(e.target.value);
-   };
-   document.querySelector('#search').querySelector('input').addEventListener('input', checkSearch);
+        let data = {};
+        let elements = form.querySelectorAll('input');
+        for (let el of elements) {
+            data[el.name] = el.value;
+        }
 
-   // Create a new link action
-   document.querySelector('#create').querySelector('[type=submit]').onclick = (e) => {
-     let form = document.querySelector('#create').querySelector('form');
-     if (!form.reportValidity()) {
-       return;
-     }
+        let config = getBasicFetchConfig();
+        config.method = 'PATCH';
+        config.body = JSON.stringify(data);
+        config.headers.set('Content-Type', 'application/json');
 
-     let data = {};
-     let elements = form.querySelectorAll('input');
-     for (let el of elements) {
-       data[el.name] = el.value;
-     }
+        fetch(`/link/${updating}`, config)
+            .then(handleResponse)
+            .then(() => {
+                switchCreateUpdate();
+                updateLinks();
+            })
+            .catch(catchErrors);
+    }
 
-     let config = getBasicFetchConfig();
-     config.method = 'POST';
-     config.body = JSON.stringify(data);
-     config.headers.set('Content-Type', 'application/json');
+    // Update cancel action
+    document.querySelector('#update').querySelector('footer').querySelector('[type=button]').onclick = (e) => {
+        switchCreateUpdate();
+    }
 
-     fetch('/link/', config)
-       .then(handleResponse)
-       .then(() => {
-         form.reset();
-         updateLinks();
-       })
-       .catch(catchErrors);
-   }
-
-   // Update a link action
-   document.querySelector('#update').querySelector('footer').querySelector('[type=submit]').onclick = (e) => {
-     let form = document.querySelector('#update').querySelector('form');
-     if (!form.reportValidity()) {
-       return;
-     }
-
-     let data = {};
-     let elements = form.querySelectorAll('input');
-     for (let el of elements) {
-       data[el.name] = el.value;
-     }
-
-     let config = getBasicFetchConfig();
-     config.method = 'PATCH';
-     config.body = JSON.stringify(data);
-     config.headers.set('Content-Type', 'application/json');
-
-     fetch(`/link/${updating}`, config)
-       .then(handleResponse)
-       .then(() => {
-         switchCreateUpdate();
-         updateLinks();
-       })
-       .catch(catchErrors);
-   }
-
-   // Update cancel action
-   document.querySelector('#update').querySelector('footer').querySelector('[type=button]').onclick = (e) => {
-     switchCreateUpdate();
-   }
-
-   // Check if we are able to log the user in, if so, login
-   checkLogin();
-
-   // Populate page with initial links
-   updateLinks();
-  </script>
+    // Populate page with initial links
+    updateLinks();
+</script>
 </html>
