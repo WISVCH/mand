@@ -45,7 +45,11 @@ func main() {
 
 	// Connects to database & automigrates structs
 	connectDB(mand)
-	defer mand.DB.Close()
+    defer func() {
+        if err := mand.DB.Close(); err != nil {
+            log.Errorf("error closing database: %v", err)
+        }
+    }()
 
 	router := getHandler(mand)
 
