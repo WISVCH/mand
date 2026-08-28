@@ -1,9 +1,4 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended",
-    ":automergeStableNonMajor",
-    ":configMigration",
-    ":rebaseStalePrs"
-  ]
+  "extends": ["github>WISVCH/renovate-config"]
 }
