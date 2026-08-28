@@ -5,7 +5,7 @@ require (
 	github.com/jinzhu/gorm v1.9.16
 	github.com/joho/godotenv v1.5.1
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/sirupsen/logrus v1.8.3
+	github.com/sirupsen/logrus v1.10.2
 )
 
 require (
